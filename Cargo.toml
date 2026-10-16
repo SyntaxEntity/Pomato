@@ -1,0 +1,57 @@
+[package]
+name = "pomato"
+version = "0.1.11"
+edition = "2024"
+description = "A simple Pomodoro timer for GNOME"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/SyntaxEntity/Pomato"
+keywords = ["pomodoro", "timer", "gnome", "gtk"]
+categories = ["gui"]
+
+[dependencies]
+gtk = { package = "gtk4", version = "0.11", features = ["gnome_50"] }
+adw = { package = "libadwaita", version = "0.9", features = ["v1_9"] }
+relm4 = { version = "0.11", features = ["libadwaita", "gnome_50"] }
+ksni = "0.2"
+flume = "0.11"
+notify-rust = "4"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/pomato", dest = "/usr/bin/pomato", mode = "755" },
+    { source = "data/io.github.pomato.Pomato.desktop", dest = "/usr/share/applications/io.github.pomato.Pomato.desktop", mode = "644" },
+    { source = "data/io.github.pomato.Pomato.gschema.xml", dest = "/usr/share/glib-2.0/schemas/io.github.pomato.Pomato.gschema.xml", mode = "644" },
+    { source = "data/io.github.pomato.Pomato.service", dest = "/usr/share/dbus-1/services/io.github.pomato.Pomato.service", mode = "644" },
+    { source = "data/icons/hicolor/256x256/apps/pomato.png", dest = "/usr/share/icons/hicolor/256x256/apps/pomato.png", mode = "644" },
+    { source = "data/icons/hicolor/128x128/apps/pomato.png", dest = "/usr/share/icons/hicolor/128x128/apps/pomato.png", mode = "644" },
+    { source = "data/icons/hicolor/64x64/apps/pomato.png", dest = "/usr/share/icons/hicolor/64x64/apps/pomato.png", mode = "644" },
+    { source = "data/icons/hicolor/48x48/apps/pomato.png", dest = "/usr/share/icons/hicolor/48x48/apps/pomato.png", mode = "644" },
+    { source = "data/icons/hicolor/32x32/apps/pomato.png", dest = "/usr/share/icons/hicolor/32x32/apps/pomato.png", mode = "644" },
+]
+post_install_script = '''
+if [ -x /usr/bin/glib-compile-schemas ]; then
+  glib-compile-schemas /usr/share/glib-2.0/schemas >/dev/null 2>&1 || :
+fi
+if [ -x /usr/bin/gtk-update-icon-cache ]; then
+  gtk-update-icon-cache -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || :
+fi
+if [ -x /usr/bin/update-desktop-database ]; then
+  update-desktop-database /usr/share/applications >/dev/null 2>&1 || :
+fi
+'''
+post_uninstall_script = '''
+if [ -x /usr/bin/glib-compile-schemas ]; then
+  glib-compile-schemas /usr/share/glib-2.0/schemas >/dev/null 2>&1 || :
+fi
+if [ -x /usr/bin/gtk-update-icon-cache ]; then
+  gtk-update-icon-cache -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || :
+fi
+if [ -x /usr/bin/update-desktop-database ]; then
+  update-desktop-database /usr/share/applications >/dev/null 2>&1 || :
+fi
+'''

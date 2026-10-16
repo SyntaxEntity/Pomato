@@ -1,0 +1,20 @@
+# ---- Rust 构建产物 ----
+/target
+
+# ---- Agent 工具目录（含 node_modules）----
+.mimocode/
+
+# ---- 个人数据：本机 GSettings 转储，绝不入库 ----
+# 这是「个人机器迁移」用的备份/还原对，不是项目源码。
+# 其中含私人壁纸绝对路径与个人目标名称，推送到公开仓库会直接泄漏。
+#
+# 处置（PROMPT-02 方案 A，2026-10-17）：这对文件保留在本机作为个人迁移工具，
+# 但不入库；面向用户的脱敏模板改为 dist/pomato-settings.example.ini（已入库）。
+/dist/pomato-settings-backup.ini
+/dist/restore-pomato-settings.sh
+
+# ---- 内部协作产物：含基础设施信息，禁止入库（Atlas 规范 §6.3）----
+/AGENT-REPORT*.md
+/REPORT-TO-PARENT*.md
+/reports/
+/.atlas/

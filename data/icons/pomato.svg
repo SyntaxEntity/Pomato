@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="tomato" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#ff454b"/>
+      <stop offset="0.55" stop-color="#f72f3d"/>
+      <stop offset="1" stop-color="#d71932"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#55d18a"/>
+      <stop offset="1" stop-color="#25a968"/>
+    </linearGradient>
+    <linearGradient id="highlight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff5ef"/>
+      <stop offset="1" stop-color="#ffb9b5"/>
+    </linearGradient>
+    <clipPath id="bodyClip">
+      <path d="M512 270
+        C455 270 410 293 366 329
+        C294 387 253 470 253 568
+        C253 728 365 848 512 848
+        C659 848 771 728 771 568
+        C771 470 730 387 658 329
+        C614 293 569 270 512 270Z"/>
+    </clipPath>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+  </defs>
+
+  <!-- Soft drop shadow -->
+  <ellipse cx="520" cy="850" rx="220" ry="17"
+           fill="#24251c" opacity=".12" filter="url(#shadow)"/>
+
+  <!-- Tomato body -->
+  <path d="M512 270
+    C455 270 410 293 366 329
+    C294 387 253 470 253 568
+    C253 728 365 848 512 848
+    C659 848 771 728 771 568
+    C771 470 730 387 658 329
+    C614 293 569 270 512 270Z"
+    fill="url(#tomato)"/>
+
+  <!-- Side shading -->
+  <path d="M635 302
+    C717 366 757 457 757 565
+    C757 698 678 800 568 838
+    C683 812 771 709 771 568
+    C771 470 730 387 658 329Z"
+    fill="#c91c35" opacity=".28"/>
+
+  <!-- Lower soft highlight -->
+  <path d="M265 583
+    C320 646 414 666 516 665
+    C620 664 714 643 761 588
+    C750 720 646 829 512 829
+    C382 829 282 732 265 583Z"
+    fill="#ff5960" opacity=".22"/>
+
+  <!-- Glossy reflection -->
+  <path d="M331 423
+    C347 389 372 354 400 340
+    C420 330 433 344 427 364
+    C418 394 390 431 365 452
+    C342 471 322 452 331 423Z"
+    fill="url(#highlight)" opacity=".94"/>
+
+  <!-- Timer dial ring -->
+  <g clip-path="url(#bodyClip)">
+    <path d="M246 493
+      C326 559 421 578 512 578
+      C603 578 698 559 778 493"
+      fill="none" stroke="#fff8ef" stroke-width="17"/>
+    <path d="M246 510
+      C326 576 421 595 512 595
+      C603 595 698 576 778 510"
+      fill="none" stroke="#f5c9bd" stroke-width="3" opacity=".35"/>
+  </g>
+
+  <!-- Central timer pointer -->
+  <path d="M479 469
+    Q479 461 488 461
+    L536 461
+    Q545 461 545 469
+    L516 514
+    Q512 521 508 514Z"
+    fill="#e9d8d0" opacity=".45"
+    transform="translate(0 4)"/>
+
+  <path d="M480 463
+    Q480 455 489 455
+    L535 455
+    Q544 455 544 463
+    L516 508
+    Q512 515 508 508Z"
+    fill="#fffaf5"/>
+
+  <!-- Minute ticks -->
+  <g fill="#fffaf5">
+    <rect x="296" y="552" width="16" height="47" rx="8"/>
+    <rect x="391" y="588" width="16" height="47" rx="8"/>
+    <rect x="496" y="603" width="32" height="61" rx="16"/>
+    <rect x="617" y="588" width="16" height="47" rx="8"/>
+    <rect x="712" y="552" width="16" height="47" rx="8"/>
+  </g>
+
+  <!-- Green tomato calyx -->
+  <path d="M512 214
+    C487 235 470 258 455 291
+    C423 282 392 277 367 285
+    C390 314 419 335 455 350
+    C439 376 426 404 430 426
+    C462 417 490 397 512 374
+    C538 397 566 417 598 426
+    C602 404 589 376 573 350
+    C609 335 638 314 661 285
+    C636 277 605 282 573 291
+    C558 258 537 235 512 214Z"
+    fill="#188e58" opacity=".28"
+    transform="translate(8 8)"/>
+
+  <path d="M512 210
+    C489 230 471 256 455 291
+    C421 280 391 276 367 285
+    C389 312 419 335 455 350
+    C438 375 425 402 430 426
+    C462 417 490 397 512 374
+    C534 397 562 417 594 426
+    C599 402 586 375 569 350
+    C605 335 635 312 657 285
+    C633 276 603 280 569 291
+    C553 256 535 230 512 210Z"
+    fill="url(#leaf)"/>
+
+  <!-- Calyx central fold -->
+  <path d="M512 210
+    C518 232 519 260 518 290
+    L518 371
+    C516 372 514 373 512 374
+    C490 397 462 417 430 426
+    C425 402 438 375 455 350
+    C419 335 389 312 367 285
+    C391 276 421 280 455 291
+    C471 256 489 230 512 210Z"
+    fill="#59d291" opacity=".24"/>
+</svg>

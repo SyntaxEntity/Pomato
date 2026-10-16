@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="io.github.pomato.Pomato" path="/io/github/pomato/">
+    <key name="work-minutes" type="u">
+      <default>25</default>
+      <range min="1" max="90"/>
+      <summary>Work duration</summary>
+      <description>Length of a focus session in minutes.</description>
+    </key>
+    <key name="short-break-minutes" type="u">
+      <default>5</default>
+      <range min="1" max="90"/>
+      <summary>Short break duration</summary>
+      <description>Length of a short break in minutes.</description>
+    </key>
+    <key name="long-break-minutes" type="u">
+      <default>15</default>
+      <range min="1" max="90"/>
+      <summary>Long break duration</summary>
+      <description>Length of a long break in minutes.</description>
+    </key>
+    <key name="long-break-interval" type="u">
+      <default>4</default>
+      <range min="1" max="12"/>
+      <summary>Long break interval</summary>
+      <description>Number of focus sessions before a long break.</description>
+    </key>
+    <key name="auto-start-next" type="b">
+      <default>false</default>
+      <summary>Auto-start next phase</summary>
+      <description>Automatically start the next phase when the current one ends.</description>
+    </key>
+    <key name="sound-enabled" type="b">
+      <default>true</default>
+      <summary>Sound enabled</summary>
+      <description>Play a sound when a phase ends.</description>
+    </key>
+    <key name="notifications-enabled" type="b">
+      <default>true</default>
+      <summary>Notifications enabled</summary>
+      <description>Show a desktop notification when a phase ends.</description>
+    </key>
+    <key name="close-to-tray" type="b">
+      <default>true</default>
+      <summary>Close to tray</summary>
+      <description>Hide the window instead of quitting when closed.</description>
+    </key>
+    <key name="minimize-to-tray" type="b">
+      <default>true</default>
+      <summary>Minimize to tray</summary>
+      <description>Hide the window instead of minimizing when possible.</description>
+    </key>
+    <key name="show-tray-icon" type="b">
+      <default>true</default>
+      <summary>Show tray icon</summary>
+      <description>Keep a tray icon visible while Pomato is running.</description>
+    </key>
+    <key name="goal-name" type="s">
+      <default>''</default>
+      <summary>Goal name</summary>
+      <description>Custom name for the countdown goal (e.g. exam or deadline).</description>
+    </key>
+    <key name="goal-date" type="s">
+      <default>''</default>
+      <summary>Goal date</summary>
+      <description>Target date for the countdown in YYYY-MM-DD form.</description>
+    </key>
+    <key name="fullscreen-bg-path" type="s">
+      <default>''</default>
+      <summary>Fullscreen background image</summary>
+      <description>Image path used as the fullscreen background. Empty = native GTK background.</description>
+    </key>
+    <key name="fullscreen-bg-dim" type="d">
+      <default>0.45</default>
+      <range min="0.0" max="1.0"/>
+      <summary>Fullscreen background mask opacity</summary>
+      <description>Dark mask opacity over the fullscreen background image (0 = clear, 1 = solid black).</description>
+    </key>
+    <key name="fullscreen-bg-blur" type="d">
+      <default>12.0</default>
+      <range min="0.0" max="64.0"/>
+      <summary>Fullscreen background blur</summary>
+      <description>Blur radius in pixels applied to the fullscreen background image.</description>
+    </key>
+    <key name="fullscreen-bg-color" type="s">
+      <default>'black'</default>
+      <summary>Fullscreen mask color</summary>
+      <description>CSS color for the fullscreen mask (black, white, or any custom color).</description>
+    </key>
+  </schema>
+</schemalist>

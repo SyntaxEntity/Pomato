@@ -1,0 +1,50 @@
+.timer-display {
+  font-size: 64pt;
+  font-weight: 300;
+  font-feature-settings: "tnum";
+  letter-spacing: 2px;
+}
+
+.phase-title {
+  font-size: 28pt;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.session-label {
+  font-size: 14pt;
+}
+
+.action-btn {
+  font-size: 13pt;
+  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 999px;
+  min-width: 110px;
+}
+
+.next-hint {
+  font-size: 11pt;
+  opacity: 0.7;
+}
+
+.goal-countdown {
+  font-size: 15pt;
+  font-weight: 600;
+  font-feature-settings: "tnum";
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+.fullscreen-bar {
+  min-height: 0;
+  padding: 0;
+}
+
+.bg-scrim {
+  background-color: black;
+}
+
+.bg-picture {
+  /* blur + scrim color are injected via CssProvider at runtime */
+}

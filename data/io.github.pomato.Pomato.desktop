@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Pomato
+GenericName=Pomodoro Timer
+Comment=Simple Pomodoro timer for GNOME
+Exec=/usr/bin/pomato
+Icon=pomato
+Terminal=false
+Type=Application
+Categories=Utility;GTK;GNOME;
+Keywords=Pomodoro;Timer;Focus;Productivity;
+StartupNotify=true
+DBusActivatable=true
+X-GNOME-UsesNotifications=true
+StartupWMClass=pomato
