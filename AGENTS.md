@@ -149,8 +149,9 @@ cargo generate-rpm
 1. **`AGENTS.md` 的定位已全区统一**：短、只放红线与索引，细节下沉 `docs/`。本项目现有结构**已符合**，无需调整。
 2. **ssh 绕行方案作废**：本文件早期版本与本项目汇报中记录的
    `GIT_SSH_COMMAND='ssh -F /dev/null -i ~/.ssh/id_ed25519'`
-   **不要再使用** —— `/etc/ssh/ssh_config.d/` 权限故障已于 2026-10-17 复核消失，
-   `ssh -T git@github.com` 正常。密钥按 Host 绑定在 `~/.ssh/config`，直接 `git push` 即可。
+   **不要再使用** —— `/etc/ssh/ssh_config.d/` 的属主故障曾于 2026-10-17 短暂复现，
+   现已恢复正常：`ssh -T git@github.com` → `Hi SyntaxEntity! You've successfully authenticated`。
+   密钥按 Host 绑定在 `~/.ssh/config`，直接 `git push` 即可。
    故障若复现 → 上报 Atlas，不要各自发明绕行方案。
 
 ### 9.2 建仓状态 ✅ 已完成（2026-10-17）
