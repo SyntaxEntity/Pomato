@@ -54,11 +54,15 @@ GSettings 只存「配置」，**不存会话**。重启或崩溃后：正在跑
 
 ---
 
-## 3. 日期弹窗选完不自动收起（中）
+## 3. 日期弹窗选完不自动收起 —— ✅ 已修（0.1.12 代码，未打包）
 
-`goal_date_row` 的 `connect_day_selected` 只写设置 + 改按钮文案，**没有** `popover.popdown()`；反倒是「清除日期」会收起弹窗。用户点选一天后面板仍开着，体验割裂。
+`goal_date_row` 的 `connect_day_selected` 原先只写设置 + 改按钮文案，**没有** `popover.popdown()`；反倒是「清除日期」会收起弹窗，体验割裂。
 
-**修法**：选中后延迟一拍再 `popdown()`（避免与 Calendar 内部动画打架）。
+**修法（已实施）**：选中后经 `glib::timeout_add_local_once(150ms)` 延后一拍再 `popdown()`——`day_selected` 在点击的同一次事件处理中触发，立刻收起会与 `gtk::Calendar` 内部的按压处理抢时序。
+
+**连带处理**：「清除日期」按钮内部会调 `select_day()`，那同样会触发 `day_selected`。用 `Rc<Cell<bool>>` 抑制标志让该路径跳过排程，避免重复 `popdown()`（幂等但语义混乱）。
+
+**未做运行态验证**：无隔离 GUI 环境，时序行为需真机确认（点选一天后面板应立即消失、且不出现与日历动画打架的闪烁）。
 
 ---
 

@@ -864,8 +864,14 @@ fn goal_date_row(settings: &Settings) -> adw::ActionRow {
     row.add_suffix(&button);
     row.set_activatable_widget(Some(&button));
 
+    // 「清除日期」会在内部调 select_day()，那会触发 day_selected；
+    // 该路径自己负责 popdown，用此标志避免重复排程。
+    let suppress_popdown = Rc::new(Cell::new(false));
+
     let settings_c = settings.clone();
     let button_c = button.clone();
+    let popover_c = popover.clone();
+    let suppress_c = suppress_popdown.clone();
     calendar.connect_day_selected(move |cal| {
         let dt = cal.date();
         let text = format!(
@@ -876,13 +882,24 @@ fn goal_date_row(settings: &Settings) -> adw::ActionRow {
         );
         let _ = settings_c.set_string("goal-date", &text);
         button_c.set_label(&format_date_cn(&text));
+        if suppress_c.get() {
+            return;
+        }
+        // 选完即收起。day_selected 在点击的同一次事件处理中触发，
+        // 立刻 popdown 会与 Calendar 内部的按压处理抢时序，故延后一拍。
+        let popover = popover_c.clone();
+        glib::timeout_add_local_once(std::time::Duration::from_millis(150), move || {
+            popover.popdown();
+        });
     });
 
     let settings_c = settings.clone();
     let button_c = button.clone();
     let calendar_c = calendar.clone();
     let popover_c = popover.clone();
+    let suppress_c = suppress_popdown.clone();
     clear.connect_clicked(move |_| {
+        suppress_c.set(true);
         let _ = settings_c.set_string("goal-date", "");
         button_c.set_label("未设置");
         let today = glib::DateTime::now_local().unwrap_or_else(|_| {
@@ -890,6 +907,7 @@ fn goal_date_row(settings: &Settings) -> adw::ActionRow {
         });
         #[allow(deprecated)]
         calendar_c.select_day(&today);
+        suppress_c.set(false);
         popover_c.popdown();
     });
 
