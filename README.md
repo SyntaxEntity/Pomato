@@ -1,9 +1,9 @@
 # Pomato
 
-![Rust](https://img.shields.io/badge/rust-2024_edition-orange?style=for-the-badge&logo=rust)
-![GTK](https://img.shields.io/badge/GTK-4.22-7fe719?style=for-the-badge&logo=gtk)
-![libadwaita](https://img.shields.io/badge/libadwaita-1.9-5e5c9a?style=for-the-badge&logo=gnome)
-![License](https://img.shields.io/badge/license-GPL--3.0--or--later-blue?style=for-the-badge)
+![Rust](https://img.shields.io/badge/Rust-1.93%2B-blue?style=for-the-badge&logo=rust)
+![GTK](https://img.shields.io/badge/GTK-4.22-blue?style=for-the-badge&logo=gtk)
+![libadwaita](https://img.shields.io/badge/libadwaita-1.9-blue?style=for-the-badge&logo=gnome)
+![license](https://img.shields.io/badge/license-GPL--3.0--or--later-blue?style=for-the-badge)
 ![DeepSeek Assisted Development](https://img.shields.io/badge/DeepSeek%20Assisted-Development-brightgreen?style=for-the-badge&logo=deepseek)
 
 番茄钟（**Pom**odoro + To**mato**），面向 GNOME / Linux 桌面的 GTK4 原生计时器。
