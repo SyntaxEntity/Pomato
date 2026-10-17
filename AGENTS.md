@@ -13,7 +13,7 @@
 - 根目录：`~/Projects/Pomato`（即本文件所在目录）
 - application-id：`io.github.pomato.Pomato`
 - 版本：`Cargo.toml` = **0.1.11**；系统已装 `pomato-0.1.11-1.x86_64`
-- **已 `git init`**（分支 `master`）· 远端主机 `github.com`、路径 `SyntaxEntity/Pomato`（SSH）· **尚未推送任何内容**
+- **已 `git init`**（分支 `master`）· 远端 `git@github.com:SyntaxEntity/Pomato.git`（SSH）· **尚未推送任何内容**
 - 目标发行版基线：**Fedora 44**（GTK 4.22.5 / libadwaita 1.9.4 / rustc 1.97.1）
 
 ---
@@ -150,12 +150,12 @@ cargo generate-rpm
 2. **ssh 绕行方案作废**：本文件早期版本与本项目汇报中记录的
    `GIT_SSH_COMMAND='ssh -F /dev/null -i ~/.ssh/id_ed25519'`
    **不要再使用** —— `/etc/ssh/ssh_config.d/` 权限故障已于 2026-10-17 复核消失，
-   `ssh -T git at github.com` 正常（实际命令的 `@` 前后无空格，此处按审计器要求排版）。密钥按 Host 绑定在 `~/.ssh/config`，直接 `git push` 即可。
+   `ssh -T git@github.com` 正常。密钥按 Host 绑定在 `~/.ssh/config`，直接 `git push` 即可。
    故障若复现 → 上报 Atlas，不要各自发明绕行方案。
 
 ### 9.2 建仓状态 ✅ 已完成（2026-10-17）
 
-- **remote 用 SSH**：主机 `github.com`、路径 `SyntaxEntity/Pomato` ✅ 已配。禁止 HTTPS+token。
+- **remote 用 SSH**：`git@github.com:SyntaxEntity/Pomato.git` ✅ 已配。禁止 HTTPS+token。
 - **提交身份**：`SyntaxEntity <265272538+SyntaxEntity@users.noreply.github.com>` ✅ 已配
   —— **真实邮箱永不出现在提交里**。
 - **隐私审计钩子**：✅ 已装。注意它走的是 `core.hooksPath`（不是 `.git/hooks/pre-push`），
@@ -186,10 +186,9 @@ cargo generate-rpm
    > 另注：`src/app.rs` 与 `src/config.rs` 中的「考研」是**通用示例值**（UI placeholder / 测试夹具），
    > 不是个人信息，刻意保留。
 3. ✅ **Vibe-Coded 披露卡片已加**：`README.md` 顶部徽章 + 底部披露段（`logo=deepseek`，非 `robot`）。
-4. ✅ **隐私审计已通过**（`--tree HEAD`，随首次提交复核）。审计器把 SSH 形式的
-   `git` + `@` + `github.com` 误判为「真实邮箱」（邮箱正则 `[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}` 命中），
-   故远端地址一律写成「主机 `github.com`、路径 `SyntaxEntity/Pomato`」形式，不写完整 SSH URL。
-   **不要**用 `--no-verify` 绕过。
+4. ✅ **隐私审计已通过**（`--tree HEAD`）。曾因审计器把 SSH 地址误判为邮箱而临时改写远端表述；
+   **该审计器 bug 已由 Atlas 修复**，远端地址已写回完整形式 `git@github.com:SyntaxEntity/Pomato.git`。
+   **不要**用 `--no-verify` 绕过审计。
 
 ### 9.3 发版规则的补充
 

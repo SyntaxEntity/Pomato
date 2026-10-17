@@ -1,12 +1,16 @@
 # Pomato
 
+![Rust](https://img.shields.io/badge/rust-2024_edition-orange?style=for-the-badge&logo=rust)
+![GTK](https://img.shields.io/badge/GTK-4.22-7fe719?style=for-the-badge&logo=gtk)
+![libadwaita](https://img.shields.io/badge/libadwaita-1.9-5e5c9a?style=for-the-badge&logo=gnome)
+![License](https://img.shields.io/badge/license-GPL--3.0--or--later-blue?style=for-the-badge)
 ![DeepSeek Assisted Development](https://img.shields.io/badge/DeepSeek%20Assisted-Development-brightgreen?style=for-the-badge&logo=deepseek)
 
 番茄钟（**Pom**odoro + To**mato**），面向 GNOME / Linux 桌面的 GTK4 原生计时器。
 
-常驻托盘，关闭窗口也继续在后台计时。带倒数日总目标与支持自定义背景图的全屏专注界面。
+常驻托盘，关闭窗口也继续在后台计时；带倒数日总目标与支持自定义背景图的全屏专注界面。
 
-![Pomato 图标](data/icons/pomato.png)
+> 版本 `0.1.11` ｜ 状态：可用（开发中）｜ 已知限制见 [§已知限制](#已知限制)
 
 ---
 
@@ -38,19 +42,22 @@
 - 环形进度条（cairo 绘制，340×340）+ 64pt 大号时间显示
 - **自定义背景**（0.1.10+）：背景图 + 可调遮罩颜色/不透明度 + 高斯模糊
 - 背景只在全屏时生效，窗口模式保持 GTK 原生外观
-- 背景显隐由窗口真实 `fullscreened` 状态驱动 —— 用 Super 键等窗口管理器方式退出全屏也不会残留
 
 ### 其他
 - 设计遵循 GNOME HIG，使用 libadwaita
 - 配置存 GSettings（dconf），升级/重启不丢失
 
+![Pomato 图标](data/icons/pomato.png)
+
 ---
 
-## 依赖
+## 安装
 
-**运行**：GTK 4.22+、libadwaita 1.9+
+**当前没有发布包渠道**（无 `.rpm` 发布页、无 Flatpak、无发行版仓库收录）。请从源码构建后安装。
 
-**构建**（Fedora 44）：
+### 从源码构建并安装
+
+先装构建依赖（Fedora 44）：
 
 ```bash
 sudo dnf install gtk4-devel libadwaita-devel rust cargo cargo-generate-rpm
@@ -62,34 +69,24 @@ sudo dnf install gtk4-devel libadwaita-devel rust cargo cargo-generate-rpm
 sudo dnf install gnome-shell-extension-appindicator
 ```
 
----
-
-## 构建与安装
+构建并生成 RPM：
 
 ```bash
-# 开发构建
-cargo build
-
-# 运行
-cargo run
-
-# 测试
-cargo test
-
-# 发布构建 + 打包 RPM
 cargo build --release
 cargo generate-rpm
-# → target/generate-rpm/pomato-<版本>-1.x86_64.rpm
+# → target/generate-rpm/pomato-0.1.11-1.x86_64.rpm
 ```
 
 安装：
 
 ```bash
-sudo rpm -Uvh target/generate-rpm/pomato-<版本>-1.x86_64.rpm
-pkill -x pomato; nohup /usr/bin/pomato >/dev/null 2>&1 &
+sudo rpm -Uvh target/generate-rpm/pomato-0.1.11-1.x86_64.rpm
 ```
 
-> ⚠️ **升级后必须先杀掉旧进程再启动**，否则运行的还是旧二进制。
+> ⚠️ **升级后必须先杀掉旧进程再启动**，否则运行的还是旧二进制：
+> ```bash
+> pkill -x pomato; nohup /usr/bin/pomato >/dev/null 2>&1 &
+> ```
 
 完整发版流程见 [`docs/BUILD-AND-RELEASE.md`](docs/BUILD-AND-RELEASE.md)。
 
@@ -125,9 +122,91 @@ dconf dump /io/github/pomato/ > pomato-settings.ini
 dconf load /io/github/pomato/ < pomato-settings.ini
 ```
 
-仓库内提供了现成的恢复脚本 `dist/restore-pomato-settings.sh`，以及一份备份数据 `dist/pomato-settings-backup.ini`（两者角色不同，见 [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md)）。
+仓库内提供一份**脱敏模板** [`dist/pomato-settings.example.ini`](dist/pomato-settings.example.ini)，含全部 16 个键的占位值，可直接导入：
+
+```bash
+dconf load /io/github/pomato/ < dist/pomato-settings.example.ini
+```
 
 完整的 16 个配置键说明见 [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md)。
+
+---
+
+## 构建（开发）
+
+```bash
+# 开发构建
+cargo build
+
+# 直接运行（不安装）
+cargo run
+
+# 单元测试（8 个，必须全绿）
+cargo test
+
+# 发布构建 + 打包 RPM
+cargo build --release
+cargo generate-rpm
+```
+
+---
+
+## 项目结构
+
+```
+Pomato/
+├── src/
+│   ├── main.rs      # 入口：adw::init、安装全局 CSS、RelmApp::run
+│   ├── app.rs       # Relm4 UI：主窗口、偏好设置、全屏背景、日历选日期
+│   ├── config.rs    # Config 结构、GSettings 读写、日期解析、倒数日文案
+│   ├── timer.rs     # 状态机：阶段、tick、开始/暂停/重置/跳过
+│   ├── notifier.rs  # 提示音 + 桌面通知
+│   └── tray.rs      # StatusNotifierItem 托盘
+├── data/            # GSettings schema、desktop/service 文件、style.css、图标
+├── docs/            # 架构、配置、构建发布、已知问题、路线图
+└── dist/            # RPM spec、脱敏配置模板
+```
+
+---
+
+## 技术栈
+
+| 项 | 版本 / 选择 |
+|---|---|
+| 语言 | Rust（edition 2024） |
+| UI | GTK 4.22 + libadwaita 1.9 + Relm4 0.11 |
+| 计时 | `glib::timeout_add_seconds_local(1)`（无异步运行时） |
+| 托盘 | ksni 0.2（StatusNotifierItem） |
+| 配置 | GSettings（dconf） |
+| 分发 | RPM（`cargo generate-rpm`） |
+
+**运行要求**：GTK 4.22+、libadwaita 1.9+。
+
+---
+
+## 已知限制
+
+- **平台**：只在 **Fedora 44 x86_64 + GNOME（Wayland）** 上构建并运行过；其他发行版、其他桌面环境、X11 均**未验证**。
+- **未验证**：Windows 与 macOS 未构建、未运行；本项目只面向 Linux。
+- **托盘依赖外部 GNOME 扩展**：不使用 GNOME 时需自行提供 StatusNotifierItem 宿主。未安装 `gnome-shell-extension-appindicator` 时托盘图标不显示，应用不会崩溃但会常驻后台并提示安装。
+- **全屏背景残留 bug（当前发布版 0.1.11）**：用窗口管理器方式退出全屏（Super 键、拖拽、热角）时，背景图/遮罩可能残留，且 F11 方向判断可能错乱。修复已在开发树完成，**尚未打包发布**。
+- **无会话持久化**：计时状态与「第几个番茄」不落盘，应用重启或崩溃后倒计时、剩余秒数、已完成番茄数全部清零。配置（GSettings）不会丢。
+- **无 i18n**：所有界面文案硬编码为中文，不支持其他语言。
+- **提示音很弱**：目前是系统蜂鸣（`gdk::Display::beep()`），不是可配置音效，无音量/音色选项。
+- **仓库版本落后于本机已装版本**：仓库内 `Cargo.toml` 为 `0.1.11`，但工作树已含未发布的 0.1.12 修复；`dist/pomato.spec` 是历史遗留文件（版本仍为 `0.1.0`），**不是打包主路径**（主路径为 `cargo generate-rpm`）。
+- **仅提供 RPM**：不提供 Flatpak、deb 或 AUR 包。
+
+---
+
+## 路线图
+
+当前优先级（详见 [`docs/ROADMAP.md`](docs/ROADMAP.md)）：
+
+- **P1**：日期弹窗选完自动收起；全屏沉浸式（隐藏 HeaderBar）
+- **P2**：计时会话持久化；i18n；无障碍标注
+- **P3**：快捷键扩展；自定义提示音
+
+**明确不做**：云同步、多平台、插件系统、Flatpak（暂缓）、Ctrl+Q 快捷键（已移除，退出只走托盘）。
 
 ---
 
@@ -141,21 +220,20 @@ dconf load /io/github/pomato/ < pomato-settings.ini
 | [`docs/BUILD-AND-RELEASE.md`](docs/BUILD-AND-RELEASE.md) | 构建、打包、安装、发版全流程 |
 | [`docs/KNOWN-ISSUES.md`](docs/KNOWN-ISSUES.md) | 已知问题与优先级 |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | 待办、已砍事项、明确不做的事 |
-| `REPORT-TO-PARENT.md` | ⏳ **一次性汇报**（非长期文档），向工作区统一管理 agent 说明当前冻结状态与待决策事项 |
 
 ---
 
-## 当前状态
+## 贡献 / 反馈
 
-- 版本：**0.1.11**（已安装到系统）
-- ⚠️ **工作树领先已安装版本**：0.1.12 的全屏状态同步修复已写入 `src/app.rs`，但**未 bump 版本、未打包、未安装**（用户明确要求先不打包）。因此系统当前运行的仍是未修复的 0.1.11。
-- **仓库已初始化**（分支 `master`），远端主机 `github.com`、仓库路径 `SyntaxEntity/Pomato`（SSH）；**尚未推送任何内容**。
+仓库尚未推送到 GitHub，暂无 issue 跟踪。问题请先记录到 [`docs/KNOWN-ISSUES.md`](docs/KNOWN-ISSUES.md) 的候选条目，等远程仓库可用后统一迁移。
+
+代码约定见 [`AGENTS.md`](AGENTS.md)：Rust + GTK4 + Relm4 技术栈锁定，改动后 `cargo test` 须保持 8/8 全绿。
 
 ---
 
 ## 许可证
 
-GPL-3.0-or-later，见 [`LICENSE`](LICENSE)。
+**GPL-3.0-or-later**（SPDX：`GPL-3.0-or-later`），全文见 [`LICENSE`](LICENSE)。
 
 ---
 
