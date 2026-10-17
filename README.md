@@ -173,7 +173,7 @@ Pomato/
 
 | 项 | 版本 / 选择 |
 |---|---|
-| 语言 | Rust（edition 2024） |
+| 语言 | Rust（edition 2024，MSRV 1.93） |
 | UI | GTK 4.22 + libadwaita 1.9 + Relm4 0.11 |
 | 计时 | `glib::timeout_add_seconds_local(1)`（无异步运行时） |
 | 托盘 | ksni 0.2（StatusNotifierItem） |
@@ -181,6 +181,7 @@ Pomato/
 | 分发 | RPM（`cargo generate-rpm`） |
 
 **运行要求**：GTK 4.22+、libadwaita 1.9+。
+**构建要求**：Rust **1.93+**（`Cargo.toml` 已声明 `rust-version`）。
 
 ---
 
