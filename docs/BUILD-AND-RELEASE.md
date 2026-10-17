@@ -82,7 +82,8 @@ pkill -x pomato; nohup /usr/bin/pomato >/dev/null 2>&1 &
 
 `post_install_script` / `post_uninstall_script` 会自动执行：`glib-compile-schemas`、`gtk-update-icon-cache`、`update-desktop-database`（各自带 `-x` 存在性检查与 `|| :` 容错）。
 
-> `dist/pomato.spec` 存在，但**不是主路径**——主路径是 `cargo generate-rpm`。
+> **打包只有一条路径：`cargo generate-rpm`**（读 `Cargo.toml` 的 `[package.metadata.generate-rpm]`）。
+> 早期的 `dist/pomato.spec` 已于 2026-10-17 删除 —— 它不在打包路径上，且版本长期漂移（`0.1.0`），是典型的「第二个真相源」。
 
 ---
 

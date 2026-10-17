@@ -46,9 +46,9 @@ Pomato/
 │   ├── style.css                          # 通过 include_str! 编译进二进制
 │   └── icons/…                            # 多尺寸 hicolor PNG + pomato.png 512 master
 ├── dist/
-│   ├── pomato.spec                     # 存在但不是主路径，generate-rpm 才是
-│   ├── pomato-settings-backup.ini      # dconf 设置备份
-│   └── restore-pomato-settings.sh      # dconf load 恢复
+│   ├── pomato-settings.example.ini     # 脱敏配置模板（入库，面向用户）
+│   ├── pomato-settings-backup.ini      # 开发者本机 dconf 备份（gitignore，不入库）
+│   └── restore-pomato-settings.sh      # 开发者本机恢复脚本（gitignore，不入库）
 └── target/                             # 构建产物；target/generate-rpm/ 存历史 RPM
 ```
 
