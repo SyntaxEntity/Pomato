@@ -17,7 +17,7 @@
 - 根目录：`~/Projects/Pomato`（即本文件所在目录）
 - application-id：`io.github.pomato.Pomato`
 - 版本：`Cargo.toml` = **0.1.11**；系统已装 `pomato-0.1.11-1.x86_64`
-- **已 `git init`**（分支 `master`）· 远端 `git@github.com:SyntaxEntity/Pomato.git`（SSH）· **尚未推送任何内容**
+- **已开源**：`github.com/SyntaxEntity/Pomato`（`master`，SSH remote）· **尚无 Release / tag**
 - 目标发行版基线：**Fedora 44**（GTK 4.22.5 / libadwaita 1.9.4 / rustc 1.97.1）
 
 ---
@@ -41,11 +41,11 @@ pgrep -a -x pomato                  # 有没有在跑
 
 ## 2. 🔴 当前状态：版本冻结（先看这里再动手）
 
-**工作树领先系统版本。** `src/app.rs` 已包含 0.1.12 的全屏状态同步修复，但：
+**工作树领先系统版本。** `src/app.rs` 已包含 0.1.12 的**两项**修复（全屏状态同步、日期弹窗自动收起），但：
 
 - `Cargo.toml` 仍是 `0.1.11`（**有意为之，不是漏 bump**）
 - 未打包、未安装 → 系统里跑的还是**未修复**的旧二进制
-- 用户明确指令：**「先不要打包」**
+- 用户明确指令：**「先不要打包」**（截至 2026-10-17 未解除）
 
 **所以：不要在未获用户同意的情况下 bump 版本或执行 `cargo generate-rpm`。** 先问。
 
@@ -170,7 +170,8 @@ cargo generate-rpm
   连同 `dist/restore-pomato-settings.sh` 一起**已被忽略，不会入库**。
   → 面向用户的脱敏模板已建：`dist/pomato-settings.example.ini`（全占位值，入库）。
 - **仓库 description**：✅ 已设，不带 `[Vibe]` 前缀。
-- **推送**：⏳ **按用户指令暂不推送**。
+- **首推**：✅ 已完成（2026-10-17，用户授权）。`master` 已上线，`default_branch=master`，
+  GitHub 许可证识别为 **GPL-3.0**。**尚无 tag / Release**。
 
 ### 9.2.1 ✅ 推送前清理（2026-10-17 已完成）
 
@@ -198,7 +199,7 @@ cargo generate-rpm
 ### 9.3 发版规则的补充
 
 - tag 格式统一 `v<MAJOR>.<MINOR>.<PATCH>`，annotated tag。
-- **发版必须配 GitHub Release**，且 Release 说明**必须包含「已知边界」**（未验证的平台 / 未跑通的路径要写明，不许暗示已验证）—— 本项目的 0.1.12 全屏修复**尚未做运行态验证**，发版时必须如实标注。
+- **发版必须配 GitHub Release**，且 Release 说明**必须包含「已知边界」**（未验证的平台 / 未跑通的路径要写明，不许暗示已验证）—— 本项目的 0.1.12 两项修复（全屏同步、日期弹窗不收起）**均未做运行态验证**，发版时必须如实标注。
 - 版本号一致性：`Cargo.toml` / 系统已装包 / tag **三处核对**。
 
 ### 9.4 与项目既有约定的关系

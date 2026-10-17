@@ -53,7 +53,7 @@
 
 ## 安装
 
-**当前没有发布包渠道**（无 `.rpm` 发布页、无 Flatpak、无发行版仓库收录）。请从源码构建后安装。
+**当前没有发布包渠道**（无 `.rpm` 发布页、无 Flatpak、无发行版仓库收录）。仓库已开源，但**尚未创建 Release**，请从源码构建后安装。
 
 ### 从源码构建并安装
 
@@ -228,7 +228,7 @@ Pomato/
 
 ## 贡献 / 反馈
 
-仓库尚未推送到 GitHub，暂无 issue 跟踪。问题请先记录到 [`docs/KNOWN-ISSUES.md`](docs/KNOWN-ISSUES.md) 的候选条目，等远程仓库可用后统一迁移。
+问题与建议请提交到 [GitHub Issues](https://github.com/SyntaxEntity/Pomato/issues)。仓库刚上线、暂无公开 issue，也可以先看 [`docs/KNOWN-ISSUES.md`](docs/KNOWN-ISSUES.md) 是否已有记录。
 
 代码约定见 [`AGENTS.md`](AGENTS.md)：Rust + GTK4 + Relm4 技术栈锁定，改动后 `cargo test` 须保持 8/8 全绿。
 
