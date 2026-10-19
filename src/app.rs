@@ -52,8 +52,12 @@ impl SimpleComponent for App {
     view! {
         adw::ApplicationWindow {
             set_title: Some("Pomato"),
-            set_default_width: 560,
-            set_default_height: 720,
+            // 默认尺寸取在内容最小尺寸之上（实测：内容 min 578×699，
+            // 加 HeaderBar 后窗口 min 578×745），留一点余量。
+            // 窗口拖不到比 min 更小 —— 这条下限由内容 measure 自然传播，
+            // 不依赖 set_size_request（见 set_child 处的说明）。
+            set_default_width: 620,
+            set_default_height: 780,
 
             connect_close_request[sender] => move |_window| {
                 sender.input(Msg::HideWindow);
@@ -105,21 +109,19 @@ impl SimpleComponent for App {
                         add_css_class: "bg-scrim",
                     },
 
-                    add_overlay = &gtk::Box {
+                    // ⚠️ 内容必须是 Overlay 的 **child**（set_child），不能是 add_overlay。
+                    // gtk::Overlay 只测量主 child，overlay 子件不参与尺寸计算：
+                    // 若内容也挂在 add_overlay 上，Overlay 的 min 会是 0x0，
+                    // 最小尺寸就永远传播不到窗口（2026-10-20 实测踩到）。
+                    // 两张背景图（bg_picture / bg_scrim）继续做 overlay，盖在内容之上。
+                    #[name = "content"]
+                    #[wrap(Some)]
+                    set_child = &gtk::Box {
                     set_orientation: gtk::Orientation::Vertical,
                     set_hexpand: true,
                     set_vexpand: true,
                     set_halign: gtk::Align::Fill,
                     set_valign: gtk::Align::Fill,
-                    // 最小尺寸约束。内容栈是「固定 340px 进度环 + 标签/按钮」，
-                    // 且内部 halign/valign = Center，窗口被拖小时内容不会自己
-                    // 压缩，而是溢出到窗口外。设在内容控件上，GTK 的 measure
-                    // 会把这条下限沿 ToolbarView → 窗口一路传播，窗口就拖不小了。
-                    // 宽：环 340（下方 CenterBox 左右 margin 各 24 → 388），取 420 留余量
-                    // 高：环 340 + 标签/按钮栈约 600（上下 margin 各 24 → 648），取 680
-                    // 两者均小于默认 560×720，不改变现有观感。
-                    set_size_request: (420, 680),
-
                     gtk::CenterBox {
                         set_vexpand: true,
                         set_hexpand: true,

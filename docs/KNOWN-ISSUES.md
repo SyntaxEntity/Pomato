@@ -109,23 +109,48 @@ GSettings 只存「配置」，**不存会话**。重启或崩溃后：正在跑
 
 ---
 
-## 9. 窗口拖得太小时控件溢出 —— ✅ 已修（0.1.13，待验收）
+## 9. 窗口拖得太小时控件溢出 —— ✅ 已修（0.1.14）
 
-**现象**（用户 2026-10-20 实测）：窗口可以拖到很小，内容区的进度环 / 标签 / 按钮会跑到窗口外面不显示。
+**现象**（用户 2026-10-20 实测）：窗口可以拖到很小，内容区的进度环 / 标签 / 按钮会跑到窗口外面。
 
-**根因**：内容栈是「固定 340px 的 `DrawingArea` 进度环 + 若干标签 + 按钮行」，
-整体 `halign`/`valign` 为 `Center`，**没有最小尺寸约束**。
-`adw::ApplicationWindow` 默认允许任意缩小，内容不会自己压缩，于是溢出。
+**根因（两次尝试才定位）**：
 
-**修法（已实施）**：在**内容栈控件**上设 `set_size_request: (420, 680)`
-（`src/app.rs`，`gtk::CenterBox` 的外层 `gtk::Box`）。
-GTK 的 `measure` 会把这条下限沿 `ToolbarView` → 窗口一路传播，窗口就拖不小了。
+内容区是一个 `gtk::Overlay`，`bg_picture`、`bg_scrim` 和内容 Box **三个全用 `add_overlay` 挂上去**，
+于是 Overlay **没有主 child**。而 GTK4 的 `GtkOverlay` **只测量主 child，overlay 子件不参与尺寸计算** ——
+它的 `measure()` 恒为 `0×0`，最小尺寸传播链在这里断掉，窗口下限退化成 HeaderBar 的 `360×200`。
 
-尺寸依据：宽 = 环 340 + `CenterBox` 左右 margin 各 24 = 388，取 420 留余量；
-高 = 环 340 + 标签/按钮栈约 600 + 上下 margin 48 ≈ 648，取 680。
-两者均小于默认 560×720，**不改变现有观感**。
+> ⚠️ **踩坑记录**：第一版（0.1.13）只加了 `set_size_request: (420, 680)`，**无效**。
+> 因为 size request 是加在那层 Box 上的，而 Box 的 `measure` 结果根本没被 Overlay 采纳。
+> 实测证据（加临时探针打印逐层 `measure`）：
+> ```
+> GtkBox      min=578x699   ← size request 生效了
+> GtkOverlay  min=0x0       ← 被归零
+> AdwToolbarView min=206x46
+> AdwApplicationWindow min=360x200   ← 窗口最小尺寸
+> ```
 
-**为什么不用 `set_geometry_hints`**：GTK4 不推荐该 API，且 gtk4-rs 0.11 未绑定；
-让最小尺寸由内容 `measure` 自然传播才是 GTK4 的标准做法。
+**修法（已实施）**：让内容成为 Overlay 的 **主 child**（`set_child`），两张背景图继续做 overlay：
 
-**未做运行态验证**：无隔离 GUI 环境，需用户安装 0.1.13 后拖拽窗口确认不再溢出。
+```rust
+#[name = "content"]
+#[wrap(Some)]
+set_child = &gtk::Box { ... }      // 原为 add_overlay
+```
+
+修复后逐层实测：
+
+```
+GtkBox      min=578x699
+GtkOverlay  min=578x699    ← 不再是 0x0
+AdwToolbarView min=578x745
+AdwApplicationWindow min=578x745   ← 窗口拖不到比这更小
+```
+
+**副产物**：内容真实最小尺寸是 **578×699**（受按钮行 530 + 左右 margin 48 约束），
+比原默认窗口 560×720 还大，所以默认尺寸一并提到 **620×780**，避免启动时窗口被迫撑大。
+
+**为什么不用 `set_geometry_hints`**：GTK4 已移除该 API（`libgtk-4.so.1` 里无此符号），
+gtk4-rs 0.11 也未绑定。最小尺寸必须靠内容 `measure` 自然传播。
+
+**验证状态**：窗口最小尺寸已在真实运行中实测为 **578×745**（临时探针，已删除）。
+用户装 0.1.14 后可拖拽确认。
