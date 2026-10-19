@@ -56,8 +56,9 @@ impl SimpleComponent for App {
             // 加 HeaderBar 后窗口 min 578×745），留一点余量。
             // 窗口拖不到比 min 更小 —— 这条下限由内容 measure 自然传播，
             // 不依赖 set_size_request（见 set_child 处的说明）。
-            set_default_width: 620,
-            set_default_height: 780,
+            // 用 8 的倍数，使其在 1.0/1.25/1.5/2.0 各种缩放下都不是奇数像素边界。
+            set_default_width: 624,
+            set_default_height: 784,
 
             connect_close_request[sender] => move |_window| {
                 sender.input(Msg::HideWindow);
@@ -252,16 +253,22 @@ impl SimpleComponent for App {
         let widgets = view_output!();
 
         // 窗口首次映射后强制整窗重绘一次。
-        // 背景：窗口刚打开时最右边缘会出现 1-2px 暗线（截图实测：内容 #fafafa →
-        // #979797 → (1,1,1) 的硬边），拖动窗口后消失 —— 典型的首帧未画满。
-        // 这里在 map 之后再排一次 redraw，确保整块 surface 被完整绘制。
+        // 背景：窗口刚打开时最右边缘会出现 1-2px 暗线，拖动窗口后消失 ——
+        // 用户实测的这两个特征都指向「首帧没有把整块 surface 画满」。
+        // 这里在 map 后排若干次 redraw（surface 首帧就绪时间不固定，一次不够稳）。
         {
             let win = root.clone();
             root.connect_map(move |_| {
-                let win = win.clone();
-                glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                    win.queue_draw();
-                });
+                for delay in [30u64, 120, 400] {
+                    let win = win.clone();
+                    glib::timeout_add_local_once(
+                        std::time::Duration::from_millis(delay),
+                        move || {
+                            win.queue_resize();
+                            win.queue_draw();
+                        },
+                    );
+                }
             });
         }
 
