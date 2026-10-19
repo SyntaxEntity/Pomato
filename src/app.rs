@@ -252,26 +252,6 @@ impl SimpleComponent for App {
 
         let widgets = view_output!();
 
-        // 窗口首次映射后强制整窗重绘一次。
-        // 背景：窗口刚打开时最右边缘会出现 1-2px 暗线，拖动窗口后消失 ——
-        // 用户实测的这两个特征都指向「首帧没有把整块 surface 画满」。
-        // 这里在 map 后排若干次 redraw（surface 首帧就绪时间不固定，一次不够稳）。
-        {
-            let win = root.clone();
-            root.connect_map(move |_| {
-                for delay in [30u64, 120, 400] {
-                    let win = win.clone();
-                    glib::timeout_add_local_once(
-                        std::time::Duration::from_millis(delay),
-                        move || {
-                            win.queue_resize();
-                            win.queue_draw();
-                        },
-                    );
-                }
-            });
-        }
-
         // Circular progress ring — redrawn each tick from the shared cell.
         {
             let progress = model.progress.clone();

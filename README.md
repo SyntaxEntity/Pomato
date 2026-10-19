@@ -10,7 +10,7 @@
 
 常驻托盘，关闭窗口也继续在后台计时；带倒数日总目标与支持自定义背景图的全屏专注界面。
 
-> 版本 `0.1.16` ｜ 状态：可用（开发中）｜ 已知限制见 [§已知限制](#已知限制)
+> 版本 `0.1.17` ｜ 状态：可用（开发中）｜ 已知限制见 [§已知限制](#已知限制)
 
 ---
 
@@ -74,13 +74,13 @@ sudo dnf install gnome-shell-extension-appindicator
 ```bash
 cargo build --release
 cargo generate-rpm
-# → target/generate-rpm/pomato-0.1.16-1.x86_64.rpm
+# → target/generate-rpm/pomato-0.1.17-1.x86_64.rpm
 ```
 
 安装：
 
 ```bash
-sudo rpm -Uvh target/generate-rpm/pomato-0.1.16-1.x86_64.rpm
+sudo rpm -Uvh target/generate-rpm/pomato-0.1.17-1.x86_64.rpm
 ```
 
 > ⚠️ **升级后必须先杀掉旧进程再启动**，否则运行的还是旧二进制：

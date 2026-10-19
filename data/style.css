@@ -58,3 +58,10 @@ window.background,
 .app-content {
   background-color: @window_bg_color;
 }
+
+/* 窗口边缘：Adwaita 的 CSD 阴影最内圈是半透明的，
+   在深色壁纸上会与桌面混合成一条明显的深色边（2026-10-20 用户实测）。
+   用 1px 不透明边框把背景色延伸出去，让阴影边缘不再与桌面直接混合。 */
+window.background {
+  border: 1px solid @window_bg_color;
+}

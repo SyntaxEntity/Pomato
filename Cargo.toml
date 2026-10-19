@@ -1,6 +1,6 @@
 [package]
 name = "pomato"
-version = "0.1.16"
+version = "0.1.17"
 edition = "2024"
 # 实测值：cargo +1.94.0 build --offline 通过（全工作区统一 1.94）；
 # 依赖侧最高要求 relm4 0.11.0 = 1.93（GTK 系 1.92）；统一抬高到 1.94 便于跨项目管理。
