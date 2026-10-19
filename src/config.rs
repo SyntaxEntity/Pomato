@@ -171,7 +171,10 @@ mod tests {
     fn days_since_epoch() {
         assert_eq!(days_from_civil(1970, 1, 1), 0);
         assert_eq!(days_from_civil(1970, 1, 2), 1);
-        assert_eq!(days_from_civil(2026, 1, 1), days_from_civil(2025, 1, 1) + 365);
+        assert_eq!(
+            days_from_civil(2026, 1, 1),
+            days_from_civil(2025, 1, 1) + 365
+        );
     }
 
     #[test]

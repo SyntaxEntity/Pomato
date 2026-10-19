@@ -124,7 +124,8 @@ impl Timer {
                 if completed {
                     self.completed_work += 1;
                 }
-                self.phase = Phase::next_after_work(self.completed_work, self.config.long_break_interval);
+                self.phase =
+                    Phase::next_after_work(self.completed_work, self.config.long_break_interval);
             }
             Phase::ShortBreak | Phase::LongBreak => {
                 self.phase = Phase::Work;

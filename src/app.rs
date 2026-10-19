@@ -402,8 +402,8 @@ impl SimpleComponent for App {
                 TrayEvent::Quit => sender.input(Msg::Quit),
             },
             Msg::HideWindow => {
-                let prefer_tray = self.timer.config.close_to_tray
-                    || self.timer.config.minimize_to_tray;
+                let prefer_tray =
+                    self.timer.config.close_to_tray || self.timer.config.minimize_to_tray;
                 if prefer_tray && self.timer.config.show_tray_icon {
                     if let Some(window) = &self.window {
                         window.set_visible(false);
@@ -565,16 +565,19 @@ impl App {
 
         let tray_group = adw::PreferencesGroup::new();
         tray_group.set_title("托盘");
-        tray_group.set_description(Some(
-            "常驻图标；安装 AppIndicator 扩展后显示在 GNOME 顶栏",
-        ));
+        tray_group.set_description(Some("常驻图标；安装 AppIndicator 扩展后显示在 GNOME 顶栏"));
         tray_group.add(&switch_row(
             &settings,
             "close-to-tray",
             "关闭窗口时最小化到托盘",
             Some("计时继续在后台运行"),
         ));
-        tray_group.add(&switch_row(&settings, "minimize-to-tray", "最小化到托盘", None));
+        tray_group.add(&switch_row(
+            &settings,
+            "minimize-to-tray",
+            "最小化到托盘",
+            None,
+        ));
         tray_group.add(&switch_row(
             &settings,
             "show-tray-icon",
@@ -585,7 +588,12 @@ impl App {
         let goal_group = adw::PreferencesGroup::new();
         goal_group.set_title("目标倒数日");
         goal_group.set_description(Some("主界面显示距目标日期的天数"));
-        goal_group.add(&entry_row(&settings, "goal-name", "名称", "例如：考研 / 项目截止"));
+        goal_group.add(&entry_row(
+            &settings,
+            "goal-name",
+            "名称",
+            "例如：考研 / 项目截止",
+        ));
         goal_group.add(&goal_date_row(&settings));
 
         let bg_group = adw::PreferencesGroup::new();
@@ -815,7 +823,13 @@ fn bg_image_row(settings: &Settings, parent: &adw::ApplicationWindow) -> adw::Ac
     row
 }
 
-fn switch_row(settings: &Settings, key: &str, title: &str, subtitle: Option<&str>) -> adw::SwitchRow {    let row = adw::SwitchRow::new();
+fn switch_row(
+    settings: &Settings,
+    key: &str,
+    title: &str,
+    subtitle: Option<&str>,
+) -> adw::SwitchRow {
+    let row = adw::SwitchRow::new();
     row.set_title(title);
     if let Some(sub) = subtitle {
         row.set_subtitle(sub);
