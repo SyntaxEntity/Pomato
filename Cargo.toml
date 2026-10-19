@@ -2,9 +2,9 @@
 name = "pomato"
 version = "0.1.11"
 edition = "2024"
-# 实测值：cargo +1.93.0 check --offline 通过；
-# 依赖侧最高要求来自 relm4 0.11.0 = 1.93（GTK 系为 1.92）。
-rust-version = "1.93"
+# 实测值：cargo +1.94.0 build --offline 通过（全工作区统一 1.94）；
+# 依赖侧最高要求 relm4 0.11.0 = 1.93（GTK 系 1.92）；统一抬高到 1.94 便于跨项目管理。
+rust-version = "1.94"
 description = "A simple Pomodoro timer for GNOME"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/SyntaxEntity/Pomato"
