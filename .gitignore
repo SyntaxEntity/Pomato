@@ -4,12 +4,19 @@
 # ---- Agent 工具目录（含 node_modules）----
 .mimocode/
 
+# ---- 本地私有工具目录（不入库；含个人迁移工具与本地构建产物）----
+.dsh/
+
 # ---- 个人数据：本机 GSettings 转储，绝不入库 ----
 # 这是「个人机器迁移」用的备份/还原对，不是项目源码。
 # 其中含私人壁纸绝对路径与个人目标名称，推送到公开仓库会直接泄漏。
 #
-# 处置（PROMPT-02 方案 A，2026-10-17）：这对文件保留在本机作为个人迁移工具，
-# 但不入库；面向用户的脱敏模板改为 dist/pomato-settings.example.ini（已入库）。
+# 处置：按 Atlas 裁定 D-26（S3）于 2026-10-20 移出仓库，落在 .dsh/ 下。
+# 面向用户的脱敏模板在 packaging/pomato-settings.example.ini（入库）。
+/.dsh/pomato-settings-backup.ini
+/.dsh/restore-pomato-settings.sh
+#
+# 历史遗留路径（dist/ 已改为 packaging/，见 D-26 S2）：
 /dist/pomato-settings-backup.ini
 /dist/restore-pomato-settings.sh
 

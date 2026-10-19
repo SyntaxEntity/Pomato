@@ -165,10 +165,11 @@ cargo generate-rpm
   —— **真实邮箱永不出现在提交里**。
 - **隐私审计钩子**：✅ 已装。注意它走的是 `core.hooksPath`（不是 `.git/hooks/pre-push`），
   用 `~/Projects/Atlas/bin/install-hooks.sh --check` 核对，别用 `ls .git/hooks/` 判断。
-- **`.gitignore`**：✅ 已建。**额外做了个人数据隔离**：
-  `dist/pomato-settings-backup.ini` 是开发者本人的 GSettings 转储（含**私人壁纸绝对路径**与**个人目标名称**），
-  连同 `dist/restore-pomato-settings.sh` 一起**已被忽略，不会入库**。
-  → 面向用户的脱敏模板已建：`dist/pomato-settings.example.ini`（全占位值，入库）。
+- **`.gitignore`**：✅ 已建，含 `.dsh/`（本地私有工具目录）。
+  **个人数据已彻底移出仓库**（Atlas 裁定 D-26/S3，2026-10-20）：
+  `pomato-settings-backup.ini`（含**私人壁纸绝对路径**与**个人目标名称**）与
+  `restore-pomato-settings.sh` 现在位于 `~/Projects/Pomato/.dsh/`，**不在仓库树内**。
+  → 面向用户的脱敏模板：`packaging/pomato-settings.example.ini`（全占位值，入库）。
 - **仓库 description**：✅ 已设，不带 `[Vibe]` 前缀。
 - **首推**：✅ 已完成（2026-10-17，用户授权）。`master` 已上线，`default_branch=master`，
   GitHub 许可证识别为 **GPL-3.0**。**尚无 tag / Release**。
@@ -186,7 +187,7 @@ cargo generate-rpm
    git grep -nE "$SENTINEL|/home/$(whoami)/" HEAD -- .    # 期望：0 命中
    ```
 
-   > 磁盘上唯一含真实家目录路径的文件是被忽略的 `dist/pomato-settings-backup.ini`（不入库），
+   > 含真实家目录路径的个人文件已移出仓库树（在 `.dsh/`，已 gitignore），
    > 所以上面的 `git grep`（只查提交树）必须为 0。
    >
    > 另注：`src/app.rs` 与 `src/config.rs` 中的「考研」是**通用示例值**（UI placeholder / 测试夹具），

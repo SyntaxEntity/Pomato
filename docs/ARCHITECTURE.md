@@ -45,10 +45,8 @@ Pomato/
 │   ├── io.github.pomato.Pomato.service   # D-Bus activation 服务文件
 │   ├── style.css                          # 通过 include_str! 编译进二进制
 │   └── icons/…                            # 多尺寸 hicolor PNG + pomato.png 512 master
-├── dist/
-│   ├── pomato-settings.example.ini     # 脱敏配置模板（入库，面向用户）
-│   ├── pomato-settings-backup.ini      # 开发者本机 dconf 备份（gitignore，不入库）
-│   └── restore-pomato-settings.sh      # 开发者本机恢复脚本（gitignore，不入库）
+├── packaging/                          # 打包配置与脱敏配置模板（入库）
+│   └── pomato-settings.example.ini     # 脱敏配置模板，面向用户
 └── target/                             # 构建产物；target/generate-rpm/ 存历史 RPM
 ```
 

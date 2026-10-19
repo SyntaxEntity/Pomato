@@ -122,10 +122,10 @@ dconf dump /io/github/pomato/ > pomato-settings.ini
 dconf load /io/github/pomato/ < pomato-settings.ini
 ```
 
-仓库内提供一份**脱敏模板** [`dist/pomato-settings.example.ini`](dist/pomato-settings.example.ini)，含全部 16 个键的占位值，可直接导入：
+仓库内提供一份**脱敏模板** [`packaging/pomato-settings.example.ini`](packaging/pomato-settings.example.ini)，含全部 16 个键的占位值，可直接导入：
 
 ```bash
-dconf load /io/github/pomato/ < dist/pomato-settings.example.ini
+dconf load /io/github/pomato/ < packaging/pomato-settings.example.ini
 ```
 
 完整的 16 个配置键说明见 [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md)。
@@ -164,7 +164,7 @@ Pomato/
 │   └── tray.rs      # StatusNotifierItem 托盘
 ├── data/            # GSettings schema、desktop/service 文件、style.css、图标
 ├── docs/            # 架构、配置、构建发布、已知问题、路线图
-└── dist/            # RPM spec、脱敏配置模板
+└── packaging/       # 打包配置与脱敏配置模板
 ```
 
 ---

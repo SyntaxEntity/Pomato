@@ -52,25 +52,22 @@ gsettings reset io.github.pomato.Pomato work-minutes
 
 ## 备份与恢复
 
-仓库内 `dist/` 下有两个**角色不同**的文件，别混：
-
-| 文件 | 角色 |
-|---|---|
-| `dist/pomato-settings-backup.ini` | **备份数据**（一份 dconf dump 快照），不是脚本 |
-| `dist/restore-pomato-settings.sh` | **恢复脚本**，内部执行 `dconf load` |
+**仓库里没有个人备份数据。** 备份/恢复是每个用户自己的事：
 
 ```bash
-# 恢复（用仓库里的备份数据）
-dist/restore-pomato-settings.sh
-
-# 手动备份（仓库没有备份脚本，自己 dump 即可）
+# 备份（导出到你自己选的位置，别提交进仓库）
 dconf dump /io/github/pomato/ > my-pomato.ini
 
-# 手动恢复
+# 恢复
 dconf load /io/github/pomato/ < my-pomato.ini
 ```
 
-换机迁移：把 `dist/pomato-settings-backup.ini` 拷过去，然后 `dconf load /io/github/pomato/ < pomato-settings-backup.ini` 即可。
+换机迁移：把 `my-pomato.ini` 拷过去，然后 `dconf load /io/github/pomato/ < my-pomato.ini` 即可。
+
+> 本仓库不再包含 `pomato-settings-backup.ini` 与 `restore-pomato-settings.sh`。
+> 它们曾放在 `dist/`，按 Atlas 裁定 **D-26（S3）** 于 2026-10-20 移出仓库，落到开发者的
+> `~/Projects/Pomato/.dsh/`（已 `.gitignore`）。原因是备份文件含真实壁纸路径与个人目标名称，
+> 不该与要发布的打包配置同目录。
 
 ---
 
@@ -84,14 +81,13 @@ dconf load /io/github/pomato/ < my-pomato.ini
 
 ## 示例配置（占位值，可直接导入）
 
-`dist/pomato-settings.example.ini` 是一份**脱敏模板**，含全部键的占位值，可直接导入试用：
+`packaging/pomato-settings.example.ini` 是一份**脱敏模板**，含全部键的占位值，可直接导入试用：
 
 ```bash
-dconf load /io/github/pomato/ < dist/pomato-settings.example.ini
+dconf load /io/github/pomato/ < packaging/pomato-settings.example.ini
 ```
 
-> ⚠️ `dist/pomato-settings-backup.ini` 与 `dist/restore-pomato-settings.sh` 是**开发者本机的个人迁移工具**，
-> 含真实路径与个人目标，已被 `.gitignore` 排除，**不随仓库分发**。
+> ⚠️ 该模板**可用但不要照抄后提交**：它是给人参考字段结构的，里面的占位路径（如壁纸）需要你自己改。
 
 一个可参考的「专注场景」配置样例（用于复现较长专注时长下的界面表现）：
 
