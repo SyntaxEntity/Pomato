@@ -1,0 +1,53 @@
+name: msrv
+
+# MSRV 钉住（裁定 D-22）
+#
+# 目的：README 徽章与 Cargo.toml 声明的是 "Rust 1.94+"。
+# 本 workflow 在每次推送时用 1.94.0 真构建一次，让声明不会随依赖升级悄悄漂移
+# （本项目真实下限由 relm4 0.11 决定 = 1.93，统一抬到 1.94 是为跨项目一致）。
+#
+# 为什么用 Fedora 容器：本项目依赖 GTK 4.22 + libadwaita 1.9，Ubuntu 镜像版本偏旧。
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'src/**'
+      - 'data/**'
+      - '.github/workflows/msrv.yml'
+  workflow_dispatch:
+
+env:
+  MSRV: "1.94.0"
+
+jobs:
+  msrv:
+    name: build at MSRV (Fedora 44)
+    runs-on: ubuntu-24.04
+    container: registry.fedoraproject.org/fedora:44
+    steps:
+      - name: Prepare container
+        run: |
+          dnf install -y --setopt=install_weak_deps=False \
+            git ca-certificates curl \
+            gcc make pkgconf-pkg-config \
+            gtk4-devel libadwaita-devel
+
+      - uses: actions/checkout@v4
+
+      - name: Install Rust ${{ env.MSRV }}
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | sh -s -- -y --profile minimal --default-toolchain "$MSRV" --no-modify-path
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: rustc 版本自证
+        run: rustc --version
+
+      - name: cargo build (locked, 以 MSRV)
+        run: cargo build --locked
+
+      - name: cargo test (locked, 以 MSRV)
+        run: cargo test --locked
