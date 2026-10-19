@@ -120,6 +120,7 @@ impl SimpleComponent for App {
                     set_orientation: gtk::Orientation::Vertical,
                     set_hexpand: true,
                     set_vexpand: true,
+                    add_css_class: "app-content",
                     set_halign: gtk::Align::Fill,
                     set_valign: gtk::Align::Fill,
                     gtk::CenterBox {
@@ -249,6 +250,20 @@ impl SimpleComponent for App {
         };
 
         let widgets = view_output!();
+
+        // 窗口首次映射后强制整窗重绘一次。
+        // 背景：窗口刚打开时最右边缘会出现 1-2px 暗线（截图实测：内容 #fafafa →
+        // #979797 → (1,1,1) 的硬边），拖动窗口后消失 —— 典型的首帧未画满。
+        // 这里在 map 之后再排一次 redraw，确保整块 surface 被完整绘制。
+        {
+            let win = root.clone();
+            root.connect_map(move |_| {
+                let win = win.clone();
+                glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
+                    win.queue_draw();
+                });
+            });
+        }
 
         // Circular progress ring — redrawn each tick from the shared cell.
         {

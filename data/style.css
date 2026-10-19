@@ -48,3 +48,13 @@
 .bg-picture {
   /* blur + scrim color are injected via CssProvider at runtime */
 }
+
+/* 窗口底色显式指定。
+   背景：窗口刚打开时最右边缘会出现 1-2px 黑线 —— 那块 surface 区域
+   没有被任何子控件覆盖，露出合成器的黑色底。拖动窗口触发整窗重绘后消失。
+   让窗口节点自己画主题底色，可消除这类未覆盖区域：
+   深色/浅色模式都跟随 Adwaita 的 @window_bg_color（浅 #fafafb / 深 #222226）。 */
+window.background,
+.app-content {
+  background-color: @window_bg_color;
+}
