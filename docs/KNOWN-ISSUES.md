@@ -99,7 +99,33 @@ GSettings 只存「配置」，**不存会话**。重启或崩溃后：正在跑
 
 ## 8. 代码小瑕疵（低）
 
-- `app.rs` 的 `switch_row` 函数签名后第一条语句与签名挤在同一行（格式问题）
 - 倒数日 / 日期 UI 无自动化测试（只有 config / timer 单测）
 - 偏好设置里的 SpinRow 显示原始浮点（如 `0.6000000000000001`），可改为 `%` 显示或改用 Scale
-- `cargo fmt --check` 报若干历史未格式化处；`cargo clippy` 有 8 条既有警告。均为既有技术债，**不要顺手全文件格式化**（会产生大片无关 diff）
+- `cargo clippy` 有 7 条既有警告（unnecessary cast / let-binding / collapsible if / manual_is_multiple_of）。
+  均为既有技术债，**未获清理授权**，不要顺手清（会混进无关 diff）
+
+> `app.rs` 的 `switch_row` 签名挤行问题、以及 `cargo fmt --check` 的差异，
+> 已于 2026-10-20 由 `cargo fmt --all` 一并清零（裁定 D-14）。
+
+---
+
+## 9. 窗口拖得太小时控件溢出 —— ✅ 已修（0.1.13，待验收）
+
+**现象**（用户 2026-10-20 实测）：窗口可以拖到很小，内容区的进度环 / 标签 / 按钮会跑到窗口外面不显示。
+
+**根因**：内容栈是「固定 340px 的 `DrawingArea` 进度环 + 若干标签 + 按钮行」，
+整体 `halign`/`valign` 为 `Center`，**没有最小尺寸约束**。
+`adw::ApplicationWindow` 默认允许任意缩小，内容不会自己压缩，于是溢出。
+
+**修法（已实施）**：在**内容栈控件**上设 `set_size_request: (420, 680)`
+（`src/app.rs`，`gtk::CenterBox` 的外层 `gtk::Box`）。
+GTK 的 `measure` 会把这条下限沿 `ToolbarView` → 窗口一路传播，窗口就拖不小了。
+
+尺寸依据：宽 = 环 340 + `CenterBox` 左右 margin 各 24 = 388，取 420 留余量；
+高 = 环 340 + 标签/按钮栈约 600 + 上下 margin 48 ≈ 648，取 680。
+两者均小于默认 560×720，**不改变现有观感**。
+
+**为什么不用 `set_geometry_hints`**：GTK4 不推荐该 API，且 gtk4-rs 0.11 未绑定；
+让最小尺寸由内容 `measure` 自然传播才是 GTK4 的标准做法。
+
+**未做运行态验证**：无隔离 GUI 环境，需用户安装 0.1.13 后拖拽窗口确认不再溢出。

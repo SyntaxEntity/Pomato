@@ -111,6 +111,14 @@ impl SimpleComponent for App {
                     set_vexpand: true,
                     set_halign: gtk::Align::Fill,
                     set_valign: gtk::Align::Fill,
+                    // 最小尺寸约束。内容栈是「固定 340px 进度环 + 标签/按钮」，
+                    // 且内部 halign/valign = Center，窗口被拖小时内容不会自己
+                    // 压缩，而是溢出到窗口外。设在内容控件上，GTK 的 measure
+                    // 会把这条下限沿 ToolbarView → 窗口一路传播，窗口就拖不小了。
+                    // 宽：环 340（下方 CenterBox 左右 margin 各 24 → 388），取 420 留余量
+                    // 高：环 340 + 标签/按钮栈约 600（上下 margin 各 24 → 648），取 680
+                    // 两者均小于默认 560×720，不改变现有观感。
+                    set_size_request: (420, 680),
 
                     gtk::CenterBox {
                         set_vexpand: true,
