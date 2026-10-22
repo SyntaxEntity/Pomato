@@ -33,7 +33,7 @@ jobs:
           dnf install -y --setopt=install_weak_deps=False \
             git ca-certificates curl \
             gcc make pkgconf-pkg-config \
-            gtk4-devel libadwaita-devel
+            gtk4-devel libadwaita-devel dbus-devel
 
       - uses: actions/checkout@v4
 
