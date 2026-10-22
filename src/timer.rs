@@ -17,7 +17,7 @@ impl Phase {
     }
 
     pub fn next_after_work(completed_work: u32, long_break_interval: u32) -> Phase {
-        if completed_work > 0 && completed_work % long_break_interval == 0 {
+        if completed_work > 0 && completed_work.is_multiple_of(long_break_interval) {
             Phase::LongBreak
         } else {
             Phase::ShortBreak

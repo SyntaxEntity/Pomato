@@ -644,7 +644,6 @@ impl App {
 
 /// Large circular progress ring for fullscreen / glanceable use.
 fn draw_progress_ring(cr: &cairo::Context, w: f64, h: f64, progress: f64) {
-    let (w, h) = (w as f64, h as f64);
     let cx = w / 2.0;
     let cy = h / 2.0;
     let line_width = 20.0;
@@ -654,7 +653,7 @@ fn draw_progress_ring(cr: &cairo::Context, w: f64, h: f64, progress: f64) {
     cr.set_line_width(line_width);
     cr.set_line_cap(cairo::LineCap::Round);
     cr.set_source_rgba(0.5, 0.5, 0.5, 0.18);
-    let _ = cr.arc(cx, cy, radius, 0.0, std::f64::consts::TAU);
+    cr.arc(cx, cy, radius, 0.0, std::f64::consts::TAU);
     let _ = cr.stroke();
 
     // Progress arc — tomato red, from top, clockwise.
@@ -662,7 +661,7 @@ fn draw_progress_ring(cr: &cairo::Context, w: f64, h: f64, progress: f64) {
         let start = -std::f64::consts::FRAC_PI_2;
         let end = start + progress.clamp(0.0, 1.0) * std::f64::consts::TAU;
         cr.set_source_rgb(0.88, 0.18, 0.15);
-        let _ = cr.arc(cx, cy, radius, start, end);
+        cr.arc(cx, cy, radius, start, end);
         let _ = cr.stroke();
     }
 }
@@ -812,17 +811,17 @@ fn bg_image_row(settings: &Settings, parent: &adw::ApplicationWindow) -> adw::Ac
             let row = row.clone();
             let clear = clear.clone();
             dialog.open(Some(&parent), gtk::gio::Cancellable::NONE, move |result| {
-                if let Ok(file) = result {
-                    if let Some(path) = file.path() {
-                        let path = path.to_string_lossy().into_owned();
-                        let _ = settings.set_string("fullscreen-bg-path", &path);
-                        let name = std::path::Path::new(&path)
-                            .file_name()
-                            .map(|s| s.to_string_lossy().into_owned())
-                            .unwrap_or(path);
-                        row.set_subtitle(&name);
-                        clear.set_sensitive(true);
-                    }
+                if let Ok(file) = result
+                    && let Some(path) = file.path()
+                {
+                    let path = path.to_string_lossy().into_owned();
+                    let _ = settings.set_string("fullscreen-bg-path", &path);
+                    let name = std::path::Path::new(&path)
+                        .file_name()
+                        .map(|s| s.to_string_lossy().into_owned())
+                        .unwrap_or(path);
+                    row.set_subtitle(&name);
+                    clear.set_sensitive(true);
                 }
             });
         });
@@ -862,11 +861,11 @@ fn goal_date_row(settings: &Settings) -> adw::ActionRow {
     row.set_subtitle("点击选择目标日期");
 
     let calendar = gtk::Calendar::new();
-    if let Some((y, m, d)) = crate::config::parse_date(&settings.string("goal-date")) {
-        if let Ok(dt) = glib::DateTime::from_local(y, m as i32, d as i32, 12, 0, 0.0) {
-            #[allow(deprecated)]
-            calendar.select_day(&dt);
-        }
+    if let Some((y, m, d)) = crate::config::parse_date(&settings.string("goal-date"))
+        && let Ok(dt) = glib::DateTime::from_local(y, m as i32, d as i32, 12, 0, 0.0)
+    {
+        #[allow(deprecated)]
+        calendar.select_day(&dt);
     }
 
     let clear = gtk::Button::with_label("清除日期");
@@ -970,7 +969,7 @@ fn next_phase_preview(timer: &Timer) -> String {
     let next = match timer.phase {
         Phase::Work => {
             if timer.completed_work > 0
-                && (timer.completed_work + 1) % timer.config.long_break_interval == 0
+                && (timer.completed_work + 1).is_multiple_of(timer.config.long_break_interval)
             {
                 Phase::LongBreak
             } else {
