@@ -16,8 +16,8 @@
 
 - 根目录：`~/Projects/Pomato`（即本文件所在目录）
 - application-id：`io.github.pomato.Pomato`
-- 版本：`Cargo.toml` = **0.1.15**（待用户安装验收）；系统已装 `pomato-0.1.12-1.x86_64`
-- **已开源**：`github.com/SyntaxEntity/Pomato`（`master`，SSH remote）· **尚无 Release / tag**
+- 版本：`Cargo.toml` = **0.1.18**（已由用户真机验收通过）；系统已装 `pomato-0.1.18-1.x86_64`
+- **已开源**：`github.com/SyntaxEntity/Pomato`（`master`，SSH remote）· **已发首个 Release `v0.1.18`**
 - 目标发行版基线：**Fedora 44**（GTK 4.22.5 / libadwaita 1.9.4 / rustc 1.97.1）
 
 ---
@@ -39,22 +39,27 @@ pgrep -a -x pomato                  # 有没有在跑
 
 ---
 
-## 2. 🔴 当前状态：0.1.18 已打包，等待用户安装验收
+## 2. ✅ 当前状态：0.1.18 已发版
 
-Atlas 裁定 **D-27**（用户 2026-10-20：「先打包，让用户装上看效果」）已解除版本冻结：
+- `Cargo.toml` = **`0.1.18`**，已打 tag `v0.1.18` 并发 GitHub Release
+- **系统里装的也是 `0.1.18`** —— 与源码一致
+- 首个对外版本就是它；0.1.11 及以前从未打包发布
 
-- `Cargo.toml` = **`0.1.18`**，RPM 已构建（见 `target/generate-rpm/`）
-- **系统里装的是 `0.1.12`** —— 0.1.18 待安装
-- **未打 tag、未发 Release**（等用户真机验收后再发版）
+**四项修复，全部经用户真机验收**（2026-10-20）：
 
-**0.1.12 的两项修复已经用户真机验收通过**（2026-10-20）：全屏状态同步 ✅、日期弹窗自动收起 ✅。
-**0.1.14**：窗口最小尺寸 —— 此前窗口被拖得很小时控件会溢出到窗口外。
-根因是 `gtk::Overlay` 没有主 child 导致最小尺寸归零（`0.1.13` 的修法无效，已在 0.1.14 纠正）。
-实测窗口最小尺寸 **578×745**。
-**0.1.15**：修窗口打开时右边缘的 1-2px 暗线（显式绘制窗口底色 + 首帧后强制重绘）。
-实测内容宽度与窗口宽度相等（620/620），故该线来自窗口 CSD 边缘，不是布局留边。
+| 版本 | 修复 | 根因 |
+|---|---|---|
+| 0.1.12 | 全屏状态同步 | 曾用 `App.fullscreen` 镜像窗口状态，改为单一真相源 `notify::fullscreened` |
+| 0.1.12 | 日期弹窗自动收起 | 延迟 150ms `popdown()` + 抑制标志 |
+| 0.1.14 | 窗口最小尺寸 | `gtk::Overlay` 无主 child → `measure()` 归零，最小尺寸链断裂；改为 `set_child`。实测最小 **578×745** |
+| 0.1.18 | 右边缘深色细线 | Adwaita 默认窗口阴影最内圈是 `shade-color` 75%（约 19% 黑）；换成轻阴影 |
 
-**仍不要在未获授权时打 tag 或发 Release。**
+**排障教训**：0.1.15 / 0.1.16 / 0.1.17 都是基于错误假设的失败尝试（首帧未画满、加重绘、加边框），
+真正定位靠的是**逐像素对比 Glance + 从 libadwaita gresource 里读出真实 CSS 值**。
+细节见 [`docs/KNOWN-ISSUES.md`](docs/KNOWN-ISSUES.md) §10。
+
+**可用手段**：XDG portal 截图可非交互调用（`gdbus call … org.freedesktop.portal.Screenshot.Screenshot "" '{"interactive": <false>}'`，
+文件落在 `~/Pictures/Screenshot-N.png`）。视觉问题应当自己截图测量，不要来回让用户描述。
 
 ---
 
@@ -177,7 +182,8 @@ cargo generate-rpm
   → 面向用户的脱敏模板：`packaging/pomato-settings.example.ini`（全占位值，入库）。
 - **仓库 description**：✅ 已设，不带 `[Vibe]` 前缀。
 - **首推**：✅ 已完成（2026-10-17，用户授权）。`master` 已上线，`default_branch=master`，
-  GitHub 许可证识别为 **GPL-3.0**。**尚无 tag / Release**。
+  GitHub 许可证识别为 **GPL-3.0**。
+- **首个 Release**：✅ `v0.1.18`（2026-10-20，用户授权，annotated tag + GitHub Release 含已知边界）。
 
 ### 9.2.1 ✅ 推送前清理（2026-10-17 已完成）
 
@@ -205,7 +211,7 @@ cargo generate-rpm
 ### 9.3 发版规则的补充
 
 - tag 格式统一 `v<MAJOR>.<MINOR>.<PATCH>`，annotated tag。
-- **发版必须配 GitHub Release**，且 Release 说明**必须包含「已知边界」**（未验证的平台 / 未跑通的路径要写明，不许暗示已验证）—— 0.1.12 的两项修复（全屏同步、日期弹窗不收起）**已经用户真机验收通过**（2026-10-20）；0.1.14 的窗口最小尺寸改动已通过真实运行验证（窗口最小 578×745），但**用户尚未安装确认**，发版时须如实标注。
+- **发版必须配 GitHub Release**，且 Release 说明**必须包含「已知边界」**（未验证的平台 / 未跑通的路径要写明，不许暗示已验证）。`v0.1.18` 已按此要求发布。
 - 版本号一致性：`Cargo.toml` / 系统已装包 / tag **三处核对**。
 
 ### 9.4 与项目既有约定的关系
