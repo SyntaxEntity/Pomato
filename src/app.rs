@@ -1,3 +1,4 @@
+use crate::i18n::{fill, t};
 use adw::prelude::*;
 use gtk::cairo;
 use gtk::gio::Settings;
@@ -71,12 +72,12 @@ impl SimpleComponent for App {
                     #[wrap(Some)]
                     set_title_widget = &adw::WindowTitle {
                         set_title: "Pomato",
-                        set_subtitle: "番茄钟",
+                        set_subtitle: t("番茄钟"),
                     },
 
                     pack_end = &gtk::Button {
                         set_icon_name: "emblem-system-symbolic",
-                        set_tooltip_text: Some("偏好设置"),
+                        set_tooltip_text: Some(t("偏好设置")),
                         connect_clicked[sender] => move |_| {
                             sender.input(Msg::OpenPreferences)
                         },
@@ -84,7 +85,7 @@ impl SimpleComponent for App {
 
                     pack_end = &gtk::Button {
                         set_icon_name: "view-fullscreen-symbolic",
-                        set_tooltip_text: Some("全屏 (F11)"),
+                        set_tooltip_text: Some(t("全屏 (F11)")),
                         connect_clicked[sender] => move |_| {
                             sender.input(Msg::ToggleFullscreen)
                         },
@@ -187,21 +188,21 @@ impl SimpleComponent for App {
                                     add_css_class: "action-btn",
                                     #[watch]
                                     set_label: match model.timer.status {
-                                        TimerStatus::Running => "暂停",
-                                        _ => "开始",
+                                        TimerStatus::Running => t("暂停"),
+                                        _ => t("开始"),
                                     },
                                     connect_clicked[sender] => move |_| sender.input(Msg::Toggle),
                                 },
 
                                 gtk::Button {
-                                    set_label: "重置",
+                                    set_label: t("重置"),
                                     add_css_class: "pill",
                                     add_css_class: "action-btn",
                                     connect_clicked[sender] => move |_| sender.input(Msg::Reset),
                                 },
 
                                 gtk::Button {
-                                    set_label: "跳过",
+                                    set_label: t("跳过"),
                                     add_css_class: "pill",
                                     add_css_class: "action-btn",
                                     connect_clicked[sender] => move |_| sender.input(Msg::Skip),
@@ -220,7 +221,10 @@ impl SimpleComponent for App {
                                 add_css_class: "caption",
                                 add_css_class: "next-hint",
                                 #[watch]
-                                set_label: &format!("下一阶段：{}", next_phase_preview(&model.timer)),
+                                set_label: &fill(
+                                    t("下一阶段：{next}"),
+                                    &[("next", &next_phase_preview(&model.timer))],
+                                ),
                             },
                         },
                     },
@@ -527,7 +531,7 @@ impl App {
         if self.timer.config.notifications_enabled {
             let next = self.timer.phase.title();
             let mins = self.timer.phase_duration_secs(self.timer.phase) / 60;
-            notifier::phase_finished("阶段", next, mins);
+            notifier::phase_finished(t("阶段"), next, mins);
         }
     }
 
@@ -540,96 +544,104 @@ impl App {
         };
 
         let dialog = adw::PreferencesDialog::new();
-        dialog.set_title("偏好设置");
+        dialog.set_title(t("偏好设置"));
 
         let page = adw::PreferencesPage::new();
-        page.set_title("计时");
+        page.set_title(t("计时"));
         page.set_icon_name(Some("preferences-system-time-symbolic"));
 
         let duration_group = adw::PreferencesGroup::new();
-        duration_group.set_title("时长（分钟）");
-        duration_group.add(&spin_row(&settings, "work-minutes", "专注", 1, 90));
-        duration_group.add(&spin_row(&settings, "short-break-minutes", "短休", 1, 90));
-        duration_group.add(&spin_row(&settings, "long-break-minutes", "长休", 1, 90));
+        duration_group.set_title(t("时长（分钟）"));
+        duration_group.add(&spin_row(&settings, "work-minutes", t("专注"), 1, 90));
+        duration_group.add(&spin_row(
+            &settings,
+            "short-break-minutes",
+            t("短休"),
+            1,
+            90,
+        ));
+        duration_group.add(&spin_row(&settings, "long-break-minutes", t("长休"), 1, 90));
         duration_group.add(&spin_row(
             &settings,
             "long-break-interval",
-            "长休间隔（番茄个数）",
+            t("长休间隔（番茄个数）"),
             1,
             12,
         ));
 
         let behavior_group = adw::PreferencesGroup::new();
-        behavior_group.set_title("行为");
+        behavior_group.set_title(t("行为"));
         behavior_group.add(&switch_row(
             &settings,
             "auto-start-next",
-            "自动开始下一阶段",
+            t("自动开始下一阶段"),
             None,
         ));
-        behavior_group.add(&switch_row(&settings, "sound-enabled", "提示音", None));
+        behavior_group.add(&switch_row(&settings, "sound-enabled", t("提示音"), None));
         behavior_group.add(&switch_row(
             &settings,
             "notifications-enabled",
-            "桌面通知",
+            t("桌面通知"),
             None,
         ));
 
         let tray_group = adw::PreferencesGroup::new();
-        tray_group.set_title("托盘");
-        tray_group.set_description(Some("常驻图标；安装 AppIndicator 扩展后显示在 GNOME 顶栏"));
+        tray_group.set_title(t("托盘"));
+        tray_group.set_description(Some(t(
+            "常驻图标；安装 AppIndicator 扩展后显示在 GNOME 顶栏",
+        )));
         tray_group.add(&switch_row(
             &settings,
             "close-to-tray",
-            "关闭窗口时最小化到托盘",
-            Some("计时继续在后台运行"),
+            t("关闭窗口时最小化到托盘"),
+            Some(t("计时继续在后台运行")),
         ));
         tray_group.add(&switch_row(
             &settings,
             "minimize-to-tray",
-            "最小化到托盘",
+            t("最小化到托盘"),
             None,
         ));
         tray_group.add(&switch_row(
             &settings,
             "show-tray-icon",
-            "显示托盘图标",
-            Some("常驻图标，建议保持开启"),
+            t("显示托盘图标"),
+            Some(t("常驻图标，建议保持开启")),
         ));
 
         let goal_group = adw::PreferencesGroup::new();
-        goal_group.set_title("目标倒数日");
-        goal_group.set_description(Some("主界面显示距目标日期的天数"));
+        goal_group.set_title(t("目标倒数日"));
+        goal_group.set_description(Some(t("主界面显示距目标日期的天数")));
         goal_group.add(&entry_row(
             &settings,
             "goal-name",
-            "名称",
-            "例如：考研 / 项目截止",
+            t("名称"),
+            t("例如：考研 / 项目截止"),
         ));
         goal_group.add(&goal_date_row(&settings));
 
         let bg_group = adw::PreferencesGroup::new();
-        bg_group.set_title("全屏背景");
-        bg_group.set_description(Some("仅全屏时生效；窗口模式保持 GTK 原生外观"));
+        bg_group.set_title(t("全屏背景"));
+        bg_group.set_description(Some(t("仅全屏时生效；窗口模式保持 GTK 原生外观")));
         bg_group.add(&bg_image_row(&settings, parent));
         bg_group.add(&bg_color_row(&settings));
         bg_group.add(&double_spin_row(
             &settings,
             "fullscreen-bg-dim",
-            "遮罩不透明度",
+            t("遮罩不透明度"),
             0.0,
             1.0,
             0.05,
-            Some("0 = 透明，1 = 全黑"),
+            Some(t("0 = 透明，1 = 全黑")),
         ));
         bg_group.add(&double_spin_row(
             &settings,
             "fullscreen-bg-blur",
-            "背景模糊",
+            t("背景模糊"),
             0.0,
             64.0,
             1.0,
-            Some("像素半径"),
+            Some(t("像素半径")),
         ));
 
         page.add(&goal_group);
@@ -704,11 +716,11 @@ fn double_spin_row(
 /// Mask color: black / white presets + custom ColorDialogButton.
 fn bg_color_row(settings: &Settings) -> adw::ActionRow {
     let row = adw::ActionRow::new();
-    row.set_title("遮罩颜色");
-    row.set_subtitle("黑色 / 白色 / 自定义");
+    row.set_title(t("遮罩颜色"));
+    row.set_subtitle(t("黑色 / 白色 / 自定义"));
 
     let dialog = gtk::ColorDialog::new();
-    dialog.set_title("遮罩颜色");
+    dialog.set_title(t("遮罩颜色"));
     dialog.set_modal(true);
     dialog.set_with_alpha(false);
 
@@ -717,9 +729,9 @@ fn bg_color_row(settings: &Settings) -> adw::ActionRow {
         swatch.set_rgba(&rgba);
     }
 
-    let black = gtk::Button::with_label("黑");
+    let black = gtk::Button::with_label(t("黑"));
     black.add_css_class("flat");
-    let white = gtk::Button::with_label("白");
+    let white = gtk::Button::with_label(t("白"));
     white.add_css_class("flat");
 
     {
@@ -761,11 +773,11 @@ fn bg_color_row(settings: &Settings) -> adw::ActionRow {
 /// Background image picker for fullscreen mode.
 fn bg_image_row(settings: &Settings, parent: &adw::ApplicationWindow) -> adw::ActionRow {
     let row = adw::ActionRow::new();
-    row.set_title("背景图片");
+    row.set_title(t("背景图片"));
 
     let current = settings.string("fullscreen-bg-path").to_string();
     if current.is_empty() {
-        row.set_subtitle("未设置 · 全屏时使用 GTK 原生背景");
+        row.set_subtitle(t("未设置 · 全屏时使用 GTK 原生背景"));
     } else {
         let name = std::path::Path::new(&current)
             .file_name()
@@ -774,7 +786,7 @@ fn bg_image_row(settings: &Settings, parent: &adw::ApplicationWindow) -> adw::Ac
         row.set_subtitle(&name);
     }
 
-    let clear = gtk::Button::with_label("清除");
+    let clear = gtk::Button::with_label(t("清除"));
     clear.add_css_class("flat");
     clear.set_sensitive(!current.is_empty());
     {
@@ -782,11 +794,11 @@ fn bg_image_row(settings: &Settings, parent: &adw::ApplicationWindow) -> adw::Ac
         let row = row.clone();
         clear.connect_clicked(move |_| {
             let _ = settings.set_string("fullscreen-bg-path", "");
-            row.set_subtitle("未设置 · 全屏时使用 GTK 原生背景");
+            row.set_subtitle(t("未设置 · 全屏时使用 GTK 原生背景"));
         });
     }
 
-    let pick = gtk::Button::with_label("选择…");
+    let pick = gtk::Button::with_label(t("选择…"));
     pick.add_css_class("suggested-action");
     {
         let settings = settings.clone();
@@ -795,9 +807,9 @@ fn bg_image_row(settings: &Settings, parent: &adw::ApplicationWindow) -> adw::Ac
         let parent = parent.clone();
         pick.connect_clicked(move |_| {
             let dialog = gtk::FileDialog::new();
-            dialog.set_title("选择背景图片");
+            dialog.set_title(t("选择背景图片"));
             let filter = gtk::FileFilter::new();
-            filter.set_name(Some("图片"));
+            filter.set_name(Some(t("图片")));
             filter.add_mime_type("image/*");
             let filters = gtk::gio::ListStore::new::<gtk::FileFilter>();
             filters.append(&filter);
@@ -857,8 +869,8 @@ fn switch_row(
 /// Goal date picker: popover calendar writing `YYYY-MM-DD` into GSettings.
 fn goal_date_row(settings: &Settings) -> adw::ActionRow {
     let row = adw::ActionRow::new();
-    row.set_title("日期");
-    row.set_subtitle("点击选择目标日期");
+    row.set_title(t("日期"));
+    row.set_subtitle(t("点击选择目标日期"));
 
     let calendar = gtk::Calendar::new();
     if let Some((y, m, d)) = crate::config::parse_date(&settings.string("goal-date"))
@@ -868,7 +880,7 @@ fn goal_date_row(settings: &Settings) -> adw::ActionRow {
         calendar.select_day(&dt);
     }
 
-    let clear = gtk::Button::with_label("清除日期");
+    let clear = gtk::Button::with_label(t("清除日期"));
     clear.add_css_class("destructive-action");
 
     let box_ = gtk::Box::new(gtk::Orientation::Vertical, 8);
@@ -884,7 +896,7 @@ fn goal_date_row(settings: &Settings) -> adw::ActionRow {
 
     let button = gtk::MenuButton::new();
     button.add_css_class("flat");
-    button.set_tooltip_text(Some("从日历选择目标日期"));
+    button.set_tooltip_text(Some(t("从日历选择目标日期")));
     button.set_popover(Some(&popover));
     row.add_suffix(&button);
     row.set_activatable_widget(Some(&button));
@@ -926,7 +938,7 @@ fn goal_date_row(settings: &Settings) -> adw::ActionRow {
     clear.connect_clicked(move |_| {
         suppress_c.set(true);
         let _ = settings_c.set_string("goal-date", "");
-        button_c.set_label("未设置");
+        button_c.set_label(t("未设置"));
         let today = glib::DateTime::now_local().unwrap_or_else(|_| {
             glib::DateTime::from_local(2026, 1, 1, 12, 0, 0.0).expect("valid date")
         });
@@ -943,8 +955,15 @@ fn goal_date_row(settings: &Settings) -> adw::ActionRow {
 
 fn format_date_cn(raw: &str) -> String {
     match crate::config::parse_date(raw) {
-        Some((y, m, d)) => format!("{y}年{m}月{d}日"),
-        None => "未设置".to_string(),
+        Some((y, m, d)) => fill(
+            t("{y}年{m}月{d}日"),
+            &[
+                ("y", &y.to_string()),
+                ("m", &m.to_string()),
+                ("d", &d.to_string()),
+            ],
+        ),
+        None => t("未设置").to_string(),
     }
 }
 
@@ -983,5 +1002,8 @@ fn next_phase_preview(timer: &Timer) -> String {
         Phase::ShortBreak => timer.config.short_break_minutes,
         Phase::LongBreak => timer.config.long_break_minutes,
     };
-    format!("{} {mins} 分钟", next.title())
+    fill(
+        t("{next} {mins} 分钟"),
+        &[("next", next.title()), ("mins", &mins.to_string())],
+    )
 }

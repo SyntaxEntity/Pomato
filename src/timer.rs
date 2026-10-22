@@ -1,3 +1,4 @@
+use crate::i18n::{fill, t};
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -10,9 +11,9 @@ pub enum Phase {
 impl Phase {
     pub fn title(self) -> &'static str {
         match self {
-            Phase::Work => "专注",
-            Phase::ShortBreak => "短休",
-            Phase::LongBreak => "长休",
+            Phase::Work => t("专注"),
+            Phase::ShortBreak => t("短休"),
+            Phase::LongBreak => t("长休"),
         }
     }
 
@@ -156,17 +157,20 @@ impl Timer {
         match self.phase {
             Phase::Work => {
                 let n = (self.completed_work % interval) + 1;
-                format!("第 {n} 个番茄 · 共 {interval} 个后长休")
+                fill(
+                    t("第 {n} 个番茄 · 共 {interval} 个后长休"),
+                    &[("n", &n.to_string()), ("interval", &interval.to_string())],
+                )
             }
-            _ => "休息一下，起来走动".to_string(),
+            _ => t("休息一下，起来走动").to_string(),
         }
     }
 
     pub fn tray_title(&self) -> String {
         let state = match self.status {
             TimerStatus::Running => "",
-            TimerStatus::Paused => "已暂停 · ",
-            TimerStatus::Idle => "待开始 · ",
+            TimerStatus::Paused => t("已暂停 · "),
+            TimerStatus::Idle => t("待开始 · "),
         };
         format!("{state}{} · {}", self.phase.title(), self.display_time())
     }

@@ -76,6 +76,7 @@ Pomato/
 ```
 
 - **`timer.rs`**：纯状态机，不碰 UI。持有 `phase`、`status`、`remaining`、`completed_work`。派生数据：`display_time()`、`progress()`、`session_label()`、`tray_title()`、`phase_duration_secs()`。
+- **`i18n.rs`**：极简多语言。中文原文即 msgid，`t()` 按系统 locale 查英文表，未命中则原样返回中文（永不出现空白）。模板用 `{name}` 命名占位符 + `fill()` 填充，便于译文调整语序。语言判定只认真正的 `en*` locale，`C`/`POSIX`/未设置一律保持中文；可用 `POMATO_LANG=en` 强制覆盖。
 - **`config.rs`**：`Config` 结构 + `from_settings()` 读取 + 日期解析（`YYYY-MM-DD`）+ 倒数日文案（`goal_label()`）。含 4 个单元测试。
 - **`app.rs`**：唯一的 Relm4 `SimpleComponent`。视图全在一个 `view!` 块里，`update()` 是唯一状态写入点。持有 `window` / `ring` / `bg_picture` / `bg_scrim` / `bg_css` 等控件句柄。
 - **`tray.rs`**：ksni `Tray` 实现 + `TrayHandle`（`set_title` / `set_running` / `set_icon_name`）+ flume 事件接收。托盘菜单项发出 `TrayEvent`。

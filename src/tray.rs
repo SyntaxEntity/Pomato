@@ -1,3 +1,4 @@
+use crate::i18n::t;
 use std::sync::{Arc, Mutex};
 
 use ksni::menu::*;
@@ -42,7 +43,7 @@ impl Tray for PomatoTray {
 
     fn menu(&self) -> Vec<MenuItem<Self>> {
         let show: MenuItem<Self> = StandardItem {
-            label: "显示 Pomato".into(),
+            label: t("显示 Pomato").into(),
             activate: Box::new(|tray: &mut Self| {
                 let _ = tray.events.send(TrayEvent::Show);
             }),
@@ -52,7 +53,7 @@ impl Tray for PomatoTray {
 
         let running = self.state.lock().unwrap().running;
         let toggle: MenuItem<Self> = StandardItem {
-            label: if running { "暂停" } else { "开始" }.into(),
+            label: if running { t("暂停") } else { t("开始") }.into(),
             activate: Box::new(|tray: &mut Self| {
                 let _ = tray.events.send(TrayEvent::Toggle);
             }),
@@ -61,7 +62,7 @@ impl Tray for PomatoTray {
         .into();
 
         let reset: MenuItem<Self> = StandardItem {
-            label: "重置".into(),
+            label: t("重置").into(),
             activate: Box::new(|tray: &mut Self| {
                 let _ = tray.events.send(TrayEvent::Reset);
             }),
@@ -70,7 +71,7 @@ impl Tray for PomatoTray {
         .into();
 
         let skip: MenuItem<Self> = StandardItem {
-            label: "跳过".into(),
+            label: t("跳过").into(),
             activate: Box::new(|tray: &mut Self| {
                 let _ = tray.events.send(TrayEvent::Skip);
             }),
@@ -79,7 +80,7 @@ impl Tray for PomatoTray {
         .into();
 
         let quit: MenuItem<Self> = StandardItem {
-            label: "退出".into(),
+            label: t("退出").into(),
             activate: Box::new(|tray: &mut Self| {
                 let _ = tray.events.send(TrayEvent::Quit);
             }),

@@ -1,3 +1,4 @@
+use crate::i18n::{fill, t};
 use std::path::PathBuf;
 
 use gtk::gio::prelude::*;
@@ -108,7 +109,7 @@ pub fn days_until(goal_date: &str) -> Option<i64> {
 pub fn goal_label(cfg: &Config) -> String {
     let date = cfg.goal_date.trim();
     if date.is_empty() {
-        return "未设置目标".to_string();
+        return t("未设置目标").to_string();
     }
     let name = cfg.goal_name.trim();
     let tag = if name.is_empty() {
@@ -117,10 +118,16 @@ pub fn goal_label(cfg: &Config) -> String {
         name.to_string()
     };
     match days_until(date) {
-        Some(0) => format!("今天是 {tag}"),
-        Some(n) if n > 0 => format!("{tag} 还有 {n} 天"),
-        Some(n) => format!("{tag} 已过去 {} 天", -n),
-        None => format!("{tag} · 日期无效"),
+        Some(0) => fill(t("今天是 {tag}"), &[("tag", &tag)]),
+        Some(n) if n > 0 => fill(
+            t("{tag} 还有 {n} 天"),
+            &[("tag", &tag), ("n", &n.to_string())],
+        ),
+        Some(n) => fill(
+            t("{tag} 已过去 {n} 天"),
+            &[("tag", &tag), ("n", &(-n).to_string())],
+        ),
+        None => fill(t("{tag} · 日期无效"), &[("tag", &tag)]),
     }
 }
 
@@ -180,11 +187,21 @@ mod tests {
     #[test]
     fn goal_label_states() {
         let mut cfg = Config::default();
-        assert_eq!(goal_label(&cfg), "未设置目标");
-        cfg.goal_name = "考研".into();
+        // 两个断言都只比对「同一函数产出的文案」，不绑定具体语言。
+        assert_eq!(goal_label(&cfg), t("未设置目标"));
+
+        cfg.goal_name = t("考研").into();
+
+        // 目标日期已过去：目标名应被插值进来
         cfg.goal_date = "2020-01-01".into();
-        assert!(goal_label(&cfg).contains("已过去"));
+        assert!(goal_label(&cfg).contains(cfg.goal_name.as_str()));
+
+        // 日期无效：不区分大小写比较，避免把测试绑死在译文的字母大小写上
         cfg.goal_date = "2020-13-01".into();
-        assert!(goal_label(&cfg).contains("日期无效"));
+        let invalid = goal_label(&cfg).to_lowercase();
+        assert!(
+            invalid.contains(&t("日期无效").to_lowercase()),
+            "got: {invalid}"
+        );
     }
 }

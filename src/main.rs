@@ -1,5 +1,6 @@
 mod app;
 mod config;
+mod i18n;
 mod notifier;
 mod timer;
 mod tray;
