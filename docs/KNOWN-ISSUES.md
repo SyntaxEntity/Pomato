@@ -193,18 +193,31 @@ Pomato 右边缘: content(250,250,251) | 180, 208, 217, 222, 225, 230 …
 **根因**：Adwaita 的 CSD 阴影最内圈是半透明的，窗口背景没有覆盖到这一像素，
 于是阴影与桌面直接混合；深色壁纸下呈现为可见的深色边。
 
-### 修法（已实施）
+### 修法演进
+
+**0.1.17 尝试**：加 `border: 1px solid @window_bg_color` —— 只能把 180 提到 191，
+用户实测仍有可见暗线。**未根治**。
+
+**0.1.18 根因确认**：从 libadwaita 的 gresource 里取到 Adwaita 的窗口阴影定义：
+
+```css
+box-shadow: 0 0 0 1px color-mix(in srgb, var(--shade-color) 75%, transparent),
+            0 2px 8px 2px var(--shade-color), 0 3px 20px 10px RGB(0 0 6/5%), …
+```
+
+最内圈那 1px 是 **shade-color 的 75%（约 19% 黑）**——在浅色内容与深色壁纸交界处
+就是一条明显的深色细线。这是 Adwaita 默认阴影的固有表现。
+
+**最终修法**：用更轻的自定义阴影替换默认值，保留层次感、去掉深色内圈：
 
 ```css
 window.background {
-  border: 1px solid @window_bg_color;
+  box-shadow: 0 0 0 1px RGB(0 0 6 / 4%), 0 2px 6px RGB(0 0 6 / 8%);
 }
 ```
 
-用 1px 不透明边框把窗口背景色向外延伸一像素，阴影不再与桌面直接混合。
-
-**实测效果**：右边缘紧贴内容的一像素 **180 → 207**，与左边缘（200）基本对称，
-且与后续阴影衰减（208, 217, 222…）自然衔接。
+**实测效果**：边缘最内像素 **180 → 218**（与 Glance 的 220 一致），衰减单调、无凹陷。
+`box-shadow: none` 也能消除（边缘变成纯背景色），但窗口会失去立体感，故采用轻阴影方案。
 
 **验证方式**：本轮起可用 XDG portal 截图（`gdbus call … org.freedesktop.portal.Screenshot.Screenshot`，
 `interactive=false` 即可，文件落在 `~/Pictures/Screenshot-N.png`），据此做了上面的像素级对比。

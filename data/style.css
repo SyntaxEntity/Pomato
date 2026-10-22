@@ -65,3 +65,12 @@ window.background,
 window.background {
   border: 1px solid @window_bg_color;
 }
+
+/* 窗口阴影：Adwaita 默认的 box-shadow 最内圈是 shade-color 的 75%（约 19% 黑），
+   在深色壁纸与浅色内容交界处会呈现为一条明显的深色细线（用户实测，
+   与同为 GTK4+libadwaita 的 Glance 对比：Glance 该像素 220，本应用默认 180）。
+   改用更轻的内圈 + 柔和外扩，保留层次感但消除深色边：
+   实测边缘最内像素 218，与 Glance 一致。 */
+window.background {
+  box-shadow: 0 0 0 1px RGB(0 0 6 / 4%), 0 2px 6px RGB(0 0 6 / 8%);
+}
