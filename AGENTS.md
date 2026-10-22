@@ -16,7 +16,7 @@
 
 - 根目录：`~/Projects/Pomato`（即本文件所在目录）
 - application-id：`io.github.pomato.Pomato`
-- 版本：`Cargo.toml` = **0.1.19**（已发版，CI 构建）；系统已装 `pomato-0.1.18-1.x86_64`（0.1.19 待用户安装）
+- 版本：`Cargo.toml` = **0.1.19**（已发版，CI 构建）；系统已装 `pomato-0.1.19-1.x86_64`
 - **已开源**：`github.com/SyntaxEntity/Pomato`（`master`，SSH remote）· **已发 Release `v0.1.18` / `v0.1.19`**
 - 目标发行版基线：**Fedora 44**（GTK 4.22.5 / libadwaita 1.9.4 / rustc 1.97.1）
 
@@ -42,7 +42,7 @@ pgrep -a -x pomato                  # 有没有在跑
 ## 2. ✅ 当前状态：0.1.19 已发版
 
 - **已发布**：`v0.1.18`、`v0.1.19`（tag + Release + RPM 资产，0.1.19 的包由 CI 构建）
-- **系统装的是 `0.1.18`** —— 0.1.19 待用户安装（无 sudo，agent 装不了）
+- **系统装的也是 `0.1.19`** —— 与 tag 一致（用户已安装 CI 构建的包）
 - 0.1.11 及以前从未打包发布；首个对外版本是 0.1.18
 
 **0.1.19 内容**：中/英双语（71 条文案）、clippy 清零、发布 CI 落地。
