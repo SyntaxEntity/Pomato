@@ -16,8 +16,8 @@
 
 - 根目录：`~/Projects/Pomato`（即本文件所在目录）
 - application-id：`io.github.pomato.Pomato`
-- 版本：`Cargo.toml` = **0.1.19**（i18n + clippy，待验收）；系统已装 `pomato-0.1.18-1.x86_64`
-- **已开源**：`github.com/SyntaxEntity/Pomato`（`master`，SSH remote）· **已发 Release `v0.1.18`**（`v0.1.19` 待发）
+- 版本：`Cargo.toml` = **0.1.19**（已发版，CI 构建）；系统已装 `pomato-0.1.18-1.x86_64`（0.1.19 待用户安装）
+- **已开源**：`github.com/SyntaxEntity/Pomato`（`master`，SSH remote）· **已发 Release `v0.1.18` / `v0.1.19`**
 - 目标发行版基线：**Fedora 44**（GTK 4.22.5 / libadwaita 1.9.4 / rustc 1.97.1）
 
 ---
@@ -39,11 +39,14 @@ pgrep -a -x pomato                  # 有没有在跑
 
 ---
 
-## 2. ✅ 当前状态：0.1.18 已发版，0.1.19 待发
+## 2. ✅ 当前状态：0.1.19 已发版
 
-- **已发布**：`v0.1.18`（tag + Release + RPM 资产），系统装的就是它
-- **待发布**：`Cargo.toml` = `0.1.19`（i18n + clippy），**尚未验收，不要打 tag**
+- **已发布**：`v0.1.18`、`v0.1.19`（tag + Release + RPM 资产，0.1.19 的包由 CI 构建）
+- **系统装的是 `0.1.18`** —— 0.1.19 待用户安装（无 sudo，agent 装不了）
 - 0.1.11 及以前从未打包发布；首个对外版本是 0.1.18
+
+**0.1.19 内容**：中/英双语（71 条纹案）、clippy 清零、发布 CI 落地。
+**用户指令为「发版并补 CI」，因此未等真机验收即发版** —— 与常规「先验收再 tag」不同，属用户明确要求。
 
 **四项修复，全部经用户真机验收**（2026-10-20）：
 
@@ -187,7 +190,9 @@ cargo generate-rpm
 - **仓库 description**：✅ 已设，不带 `[Vibe]` 前缀。
 - **首推**：✅ 已完成（2026-10-17，用户授权）。`master` 已上线，`default_branch=master`，
   GitHub 许可证识别为 **GPL-3.0**。
-- **首个 Release**：✅ `v0.1.18`（2026-10-20，用户授权，annotated tag + GitHub Release 含已知边界）。
+- **Release**：✅ `v0.1.18`（手工构建）、`v0.1.19`（CI 构建，2026-10-22）。
+- **CI**：`msrv.yml`（钉 Rust 1.94）+ `release.yml`（tag 触发构建 RPM 并建 Release）。
+  2026-10-22 前 `msrv` 因缺 `dbus-devel` 自 10-19 起持续失败，已修复。
 
 ### 9.2.1 ✅ 推送前清理（2026-10-17 已完成）
 
