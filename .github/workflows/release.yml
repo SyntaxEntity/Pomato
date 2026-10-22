@@ -1,0 +1,143 @@
+name: release
+
+# tag 触发构建 RPM 并发布 GitHub Release。
+#
+# 重要：tag 会冻结它指向的提交里的 workflow 文件 —— 改了本文件必须先推送、
+# 再打 tag，否则 tag 跑的还是旧版（Glance v0.1.3 踩过）。
+#
+# 为什么用 Fedora 容器：依赖 GTK 4.22 + libadwaita 1.9，Ubuntu 镜像版本偏旧。
+# 为什么显式给 GH_REPO：release job 没有 checkout 时 gh 无法从 cwd 推断仓库，
+# 会报 "fatal: not a git repository"（Glance v0.1.3 首发即失败）。
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '只构建与校验，不创建 Release'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+env:
+  MSRV: "1.94.0"
+  GH_REPO: ${{ github.repository }}
+
+jobs:
+  # 先跑门禁：版本号必须与 tag 一致，测试必须全绿。不过这两关不产包。
+  verify:
+    name: verify
+    runs-on: ubuntu-24.04
+    container: registry.fedoraproject.org/fedora:44
+    steps:
+      - name: Prepare container
+        run: |
+          dnf install -y --setopt=install_weak_deps=False \
+            git ca-certificates curl \
+            gcc make pkgconf-pkg-config \
+            gtk4-devel libadwaita-devel
+
+      - uses: actions/checkout@v4
+
+      - name: Install Rust ${{ env.MSRV }}
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | sh -s -- -y --profile minimal --default-toolchain "$MSRV" --no-modify-path
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: 版本号必须与 tag 一致
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -eu
+          tag="${GITHUB_REF_NAME#v}"
+          manifest="$(grep -m1 '^version' Cargo.toml | sed -E 's/.*"([^"]+)".*/\1/')"
+          echo "tag=v${tag}  Cargo.toml=${manifest}"
+          [ "$tag" = "$manifest" ] || {
+            echo "::error::tag v${tag} 与 Cargo.toml 版本 ${manifest} 不一致，拒绝发版"
+            exit 1
+          }
+
+      - name: 规则（fmt / clippy）
+        run: |
+          rustup component add rustfmt clippy
+          cargo fmt --all -- --check
+          cargo clippy --all-targets --locked -- -D warnings
+
+      - name: 测试
+        run: cargo test --locked
+
+  # 构建与发布放在同一 job：产物不跨 job 传递，避免 artifact 下载环节
+  # （Glance 那次的失败正好发生在「只下载 artifact、不 checkout」的 job 里）。
+  publish:
+    name: publish
+    needs: verify
+    runs-on: ubuntu-24.04
+    container: registry.fedoraproject.org/fedora:44
+    steps:
+      - name: Prepare container
+        run: |
+          dnf install -y --setopt=install_weak_deps=False \
+            git ca-certificates curl gh \
+            gcc make pkgconf-pkg-config \
+            gtk4-devel libadwaita-devel
+
+      - uses: actions/checkout@v4
+
+      - name: Install Rust ${{ env.MSRV }}
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | sh -s -- -y --profile minimal --default-toolchain "$MSRV" --no-modify-path
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: Install cargo-generate-rpm
+        run: cargo install cargo-generate-rpm --locked
+
+      - name: 构建 release 二进制
+        run: cargo build --release --locked
+
+      - name: 打包 RPM
+        run: cargo generate-rpm
+
+      - name: 校验产物
+        run: |
+          set -eu
+          manifest="$(grep -m1 '^version' Cargo.toml | sed -E 's/.*"([^"]+)".*/\1/')"
+          rpm="target/generate-rpm/pomato-${manifest}-1.x86_64.rpm"
+          [ -f "$rpm" ] || { echo "::error::未生成 $rpm"; ls -l target/generate-rpm || true; exit 1; }
+          built="$(rpm -qp --qf '%{VERSION}-%{RELEASE}.%{ARCH}' "$rpm")"
+          echo "产物: $rpm ($(stat -c %s "$rpm") B)  版本: $built"
+          case "$built" in
+            "${manifest}-1.x86_64") ;;
+            *) echo "::error::包内版本 $built 与 Cargo.toml $manifest 不一致"; exit 1 ;;
+          esac
+
+      - name: 发布 Release
+        if: startsWith(github.ref, 'refs/tags/') && !inputs.dry_run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eu
+          tag="$GITHUB_REF_NAME"
+          manifest="$(grep -m1 '^version' Cargo.toml | sed -E 's/.*"([^"]+)".*/\1/')"
+          rpm="target/generate-rpm/pomato-${manifest}-1.x86_64.rpm"
+          notes=".github/release-notes/${tag}.md"
+
+          # 幂等：Release 已存在就只补/更新资产，不重建
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag 已存在，只更新资产"
+            gh release upload "$tag" "$rpm" --clobber
+          elif [ -f "$notes" ]; then
+            gh release create "$tag" "$rpm" --title "Pomato ${tag}" --notes-file "$notes" --verify-tag
+          else
+            echo "::warning::缺少 $notes，改用自动生成的说明（请补上「已知边界」）"
+            gh release create "$tag" "$rpm" --title "Pomato ${tag}" --generate-notes --verify-tag
+          fi
+
+      - name: 发布结果
+        if: startsWith(github.ref, 'refs/tags/') && !inputs.dry_run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release view "$GITHUB_REF_NAME" --json tagName,isDraft,assets --jq '"tag=\(.tagName) draft=\(.isDraft)\n" + (.assets[] | "  \(.name)  \(.size) B")'

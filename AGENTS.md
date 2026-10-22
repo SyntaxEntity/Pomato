@@ -16,8 +16,8 @@
 
 - 根目录：`~/Projects/Pomato`（即本文件所在目录）
 - application-id：`io.github.pomato.Pomato`
-- 版本：`Cargo.toml` = **0.1.18**（已由用户真机验收通过）；系统已装 `pomato-0.1.18-1.x86_64`
-- **已开源**：`github.com/SyntaxEntity/Pomato`（`master`，SSH remote）· **已发首个 Release `v0.1.18`**
+- 版本：`Cargo.toml` = **0.1.19**（i18n + clippy，待验收）；系统已装 `pomato-0.1.18-1.x86_64`
+- **已开源**：`github.com/SyntaxEntity/Pomato`（`master`，SSH remote）· **已发 Release `v0.1.18`**（`v0.1.19` 待发）
 - 目标发行版基线：**Fedora 44**（GTK 4.22.5 / libadwaita 1.9.4 / rustc 1.97.1）
 
 ---
@@ -29,7 +29,7 @@
 ```bash
 cd ~/Projects/Pomato                   # 或直接在本文件所在目录执行
 grep -m1 '^version' Cargo.toml      # 真实版本号
-cargo test                          # 应为 8/8 全绿
+cargo test                          # 应为 11/11 全绿
 cargo build                         # 应能编译
 rpm -q pomato                       # 系统装的是哪个版本
 pgrep -a -x pomato                  # 有没有在跑
@@ -39,11 +39,11 @@ pgrep -a -x pomato                  # 有没有在跑
 
 ---
 
-## 2. ✅ 当前状态：0.1.18 已发版
+## 2. ✅ 当前状态：0.1.18 已发版，0.1.19 待发
 
-- `Cargo.toml` = **`0.1.18`**，已打 tag `v0.1.18` 并发 GitHub Release
-- **系统里装的也是 `0.1.18`** —— 与源码一致
-- 首个对外版本就是它；0.1.11 及以前从未打包发布
+- **已发布**：`v0.1.18`（tag + Release + RPM 资产），系统装的就是它
+- **待发布**：`Cargo.toml` = `0.1.19`（i18n + clippy），**尚未验收，不要打 tag**
+- 0.1.11 及以前从未打包发布；首个对外版本是 0.1.18
 
 **四项修复，全部经用户真机验收**（2026-10-20）：
 
@@ -57,6 +57,10 @@ pgrep -a -x pomato                  # 有没有在跑
 **排障教训**：0.1.15 / 0.1.16 / 0.1.17 都是基于错误假设的失败尝试（首帧未画满、加重绘、加边框），
 真正定位靠的是**逐像素对比 Glance + 从 libadwaita gresource 里读出真实 CSS 值**。
 细节见 [`docs/KNOWN-ISSUES.md`](docs/KNOWN-ISSUES.md) §10。
+
+**发布已自动化**：推 tag `v<ver>` 触发 `.github/workflows/release.yml` —— CI 校验版本一致、
+跑 fmt/clippy/test、构建 RPM、创建 Release。**改过该 workflow 必须先推送再打 tag**
+（tag 会冻结它指向提交里的 workflow）。另有一个 `msrv.yml` 钉住 Rust 1.94。
 
 **可用手段**：XDG portal 截图可非交互调用（`gdbus call … org.freedesktop.portal.Screenshot.Screenshot "" '{"interactive": <false>}'`，
 文件落在 `~/Pictures/Screenshot-N.png`）。视觉问题应当自己截图测量，不要来回让用户描述。
@@ -93,7 +97,7 @@ pgrep -a -x pomato                  # 有没有在跑
 ## 5. 每次改动后的验证清单
 
 ```bash
-cargo test                      # 8/8 必须全绿（config 4 + timer 4）
+cargo test                      # 11/11 必须全绿（config + timer + i18n）
 cargo build --release           # 必须编译通过
 ```
 
